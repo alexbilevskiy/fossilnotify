@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace 'com.roman.notificationlistenerexample'
+    namespace 'nodomain.freeyourgadget.fossilnotify'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.roman.notificationlistenerexample"
+        applicationId "nodomain.freeyourgadget.fossilnotify"
         minSdk 28
         targetSdk 33
         versionCode 1

@@ -1,4 +1,4 @@
-package com.roman.notificationlistenerexample.data
+package nodomain.freeyourgadget.fossilnotify.data
 
 import com.google.gson.annotations.SerializedName
 

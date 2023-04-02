@@ -1,4 +1,4 @@
-package com.roman.notificationlistenerexample.ui.theme
+package nodomain.freeyourgadget.fossilnotify.ui.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle

@@ -1,4 +1,4 @@
-package com.roman.notificationlistenerexample.ui.screens
+package nodomain.freeyourgadget.fossilnotify.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button

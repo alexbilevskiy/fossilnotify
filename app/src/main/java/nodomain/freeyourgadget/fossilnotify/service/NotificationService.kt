@@ -1,12 +1,12 @@
-package com.roman.notificationlistenerexample.service
+package nodomain.freeyourgadget.fossilnotify.service
 
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
-import com.roman.notificationlistenerexample.R
-import com.roman.notificationlistenerexample.activity.MainActivity
+import nodomain.freeyourgadget.fossilnotify.R
+import nodomain.freeyourgadget.fossilnotify.activity.MainActivity
 import kotlin.random.Random
 
 class NotificationService(

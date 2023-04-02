@@ -1,4 +1,4 @@
-package com.roman.notificationlistenerexample.service
+package nodomain.freeyourgadget.fossilnotify.service
 
 interface Notification {
     fun showNotification()

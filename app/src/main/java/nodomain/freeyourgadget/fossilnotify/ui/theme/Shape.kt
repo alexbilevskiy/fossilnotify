@@ -1,4 +1,4 @@
-package com.roman.notificationlistenerexample.ui.theme
+package nodomain.freeyourgadget.fossilnotify.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes

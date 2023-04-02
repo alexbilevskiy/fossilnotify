@@ -1,9 +1,9 @@
-package com.roman.notificationlistenerexample.service
+package nodomain.freeyourgadget.fossilnotify.service
 
 import android.content.Context
 import android.content.Intent
 import com.google.gson.Gson
-import com.roman.notificationlistenerexample.data.*
+import nodomain.freeyourgadget.fossilnotify.data.*
 
 class GBService(
     private val context: Context

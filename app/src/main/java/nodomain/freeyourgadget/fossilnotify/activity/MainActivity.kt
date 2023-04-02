@@ -1,4 +1,4 @@
-package com.roman.notificationlistenerexample.activity
+package nodomain.freeyourgadget.fossilnotify.activity
 
 import android.Manifest
 import android.content.ComponentName
@@ -16,12 +16,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
-import com.roman.notificationlistenerexample.service.*
-import com.roman.notificationlistenerexample.service.NLService.Companion.INTENT_FILTER_ACTION
-import com.roman.notificationlistenerexample.service.NLService.Companion.INTENT_FILTER_GB
-import com.roman.notificationlistenerexample.ui.screens.MainScreen
-import com.roman.notificationlistenerexample.ui.theme.NotificationListenerExampleTheme
-import com.roman.notificationlistenerexample.ui.view_model.ViewModel
+import nodomain.freeyourgadget.fossilnotify.service.*
+import nodomain.freeyourgadget.fossilnotify.service.NLService.Companion.INTENT_FILTER_ACTION
+import nodomain.freeyourgadget.fossilnotify.service.NLService.Companion.INTENT_FILTER_GB
+import nodomain.freeyourgadget.fossilnotify.ui.screens.MainScreen
+import nodomain.freeyourgadget.fossilnotify.ui.theme.NotificationListenerExampleTheme
+import nodomain.freeyourgadget.fossilnotify.ui.view_model.ViewModel
 
 
 class MainActivity : ComponentActivity() {

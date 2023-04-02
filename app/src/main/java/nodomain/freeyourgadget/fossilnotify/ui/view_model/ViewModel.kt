@@ -1,11 +1,11 @@
-package com.roman.notificationlistenerexample.ui.view_model
+package nodomain.freeyourgadget.fossilnotify.ui.view_model
 
 import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.roman.notificationlistenerexample.service.NLService.Companion.INTENT_FILTER_ACTION
+import nodomain.freeyourgadget.fossilnotify.service.NLService.Companion.INTENT_FILTER_ACTION
 
 class ViewModel {
     var text by mutableStateOf("No Notifications To Display")

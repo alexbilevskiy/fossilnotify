@@ -1,10 +1,10 @@
-package com.roman.notificationlistenerexample
+package nodomain.freeyourgadget.fossilnotify
 
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import com.roman.notificationlistenerexample.service.NotificationService
+import nodomain.freeyourgadget.fossilnotify.service.NotificationService
 
 class App : Application() {
 

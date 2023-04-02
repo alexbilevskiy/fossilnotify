@@ -1,4 +1,4 @@
-package com.roman.notificationlistenerexample.service
+package nodomain.freeyourgadget.fossilnotify.service
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -16,8 +16,8 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.messaging.ktx.messaging
-import com.roman.notificationlistenerexample.R
-import com.roman.notificationlistenerexample.activity.MainActivity
+import nodomain.freeyourgadget.fossilnotify.R
+import nodomain.freeyourgadget.fossilnotify.activity.MainActivity
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 

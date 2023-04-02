@@ -1,4 +1,4 @@
-package com.roman.notificationlistenerexample.service
+package nodomain.freeyourgadget.fossilnotify.service
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -8,14 +8,14 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import com.google.gson.Gson
-import com.roman.notificationlistenerexample.data.*
+import nodomain.freeyourgadget.fossilnotify.data.*
 
 class NLService : NotificationListenerService() {
 
     companion object {
         const val TAG = "NotificationListener"
-        const val  INTENT_FILTER_ACTION = "com.roman.notificationListenerExample.NOTIFICATION_LISTENER_EXAMPLE"
-        const val  INTENT_FILTER_GB = "com.roman.notificationListenerExample.NOTIFICATION_LISTENER_GB"
+        const val  INTENT_FILTER_ACTION = "nodomain.freeyourgadget.fossilnotify.NOTIFICATION_LISTENER_EXAMPLE"
+        const val  INTENT_FILTER_GB = "nodomain.freeyourgadget.fossilnotify.NOTIFICATION_LISTENER_GB"
     }
 
     private lateinit var nlServiceReceiver : NLServiceReceiver

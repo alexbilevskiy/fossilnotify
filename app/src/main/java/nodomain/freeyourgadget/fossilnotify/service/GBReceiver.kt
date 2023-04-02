@@ -1,10 +1,10 @@
-package com.roman.notificationlistenerexample.service
+package nodomain.freeyourgadget.fossilnotify.service
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.roman.notificationlistenerexample.ui.view_model.ViewModel
+import nodomain.freeyourgadget.fossilnotify.ui.view_model.ViewModel
 
 class GBReceiver(
     private val viewModel: ViewModel,
