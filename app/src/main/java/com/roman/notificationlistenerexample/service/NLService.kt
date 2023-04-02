@@ -7,12 +7,15 @@ import android.content.IntentFilter
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import com.google.gson.Gson
+import com.roman.notificationlistenerexample.data.*
 
 class NLService : NotificationListenerService() {
 
     companion object {
         const val TAG = "NotificationListener"
         const val  INTENT_FILTER_ACTION = "com.roman.notificationListenerExample.NOTIFICATION_LISTENER_EXAMPLE"
+        const val  INTENT_FILTER_GB = "com.roman.notificationListenerExample.NOTIFICATION_LISTENER_GB"
     }
 
     private lateinit var nlServiceReceiver : NLServiceReceiver
@@ -35,6 +38,7 @@ class NLService : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
         Log.d(TAG, "onNotificationPosted")
+        countNotifications()
         sbn?.let {
             Log.d(TAG, "Id: ${sbn.id}  ${sbn.notification.tickerText}  ${sbn.packageName}")
             val intent = Intent(INTENT_FILTER_ACTION)
@@ -46,6 +50,7 @@ class NLService : NotificationListenerService() {
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         super.onNotificationRemoved(sbn)
         Log.d(TAG, "onNotificationRemoved")
+        countNotifications()
         sbn?.let {
             Log.d(TAG, "Id: ${sbn.id}  ${sbn.notification.tickerText}  ${sbn.packageName}")
             val intent = Intent(INTENT_FILTER_ACTION)
@@ -56,7 +61,8 @@ class NLService : NotificationListenerService() {
 
     override fun onNotificationRankingUpdate(rankingMap: RankingMap?) {
         super.onNotificationRankingUpdate(rankingMap)
-        Log.d(TAG, "onNotificationRemoved")
+        countNotifications()
+        Log.d(TAG, "onNotificationRankingUpdate")
     }
 
     internal inner class NLServiceReceiver : BroadcastReceiver() {
@@ -79,8 +85,30 @@ class NLService : NotificationListenerService() {
                     val i3 = Intent(INTENT_FILTER_ACTION)
                     i3.putExtra("notification_event", "===== Notification List ====")
                     sendBroadcast(i3)
+                } else if (it.getStringExtra("command") == "count") {
+                    countNotifications(true)
                 }
             }
+        }
+    }
+
+    private fun countNotifications(fromUi: Boolean = false) {
+        var tgCount = 0
+        for (sbn in this@NLService.activeNotifications) {
+            if (sbn.packageName == "org.telegram.messenger") {
+                tgCount++
+            }
+        }
+        Log.d(TAG, "COUNT: $tgCount")
+        if(fromUi) {
+            val iTg = Intent(INTENT_FILTER_GB)
+            iTg.putExtra("tg_count", tgCount)
+            sendBroadcast(iTg)
+        } else {
+            val push = GBPush(Push(PushParams("Telegram", tgCount.toString())))
+            val pushConfigIntent = Intent(GBPushConfigAction)
+            pushConfigIntent.putExtra(GBPushExtra, Gson().toJson(push))
+            sendBroadcast(pushConfigIntent)
         }
     }
 }

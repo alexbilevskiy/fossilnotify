@@ -9,16 +9,16 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
-import com.roman.notificationlistenerexample.service.NLService
+import com.roman.notificationlistenerexample.service.*
 import com.roman.notificationlistenerexample.service.NLService.Companion.INTENT_FILTER_ACTION
-import com.roman.notificationlistenerexample.service.NotificationReceiver
-import com.roman.notificationlistenerexample.service.NotificationService
+import com.roman.notificationlistenerexample.service.NLService.Companion.INTENT_FILTER_GB
 import com.roman.notificationlistenerexample.ui.screens.MainScreen
 import com.roman.notificationlistenerexample.ui.theme.NotificationListenerExampleTheme
 import com.roman.notificationlistenerexample.ui.view_model.ViewModel
@@ -32,15 +32,17 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel = ViewModel()
     private lateinit var nService: NotificationService
+    private lateinit var iService: GBService
     private lateinit var nReceiver: NotificationReceiver
+    private lateinit var iReceiver: GBReceiver
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            // FCM SDK (and your app) can post notifications.
+            Toast.makeText(applicationContext,"App is allowed to show notifications",Toast.LENGTH_SHORT).show()
         } else {
-            // TODO: Inform user that that your app will not show notifications.
+            Toast.makeText(applicationContext,"App is NOT allowed to show notifications!",Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -48,9 +50,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         nService = NotificationService(applicationContext)
+        iService = GBService(applicationContext)
         nReceiver = NotificationReceiver(viewModel)
-        val filter = IntentFilter(INTENT_FILTER_ACTION)
-        registerReceiver(nReceiver, filter)
+        iReceiver = GBReceiver(viewModel, iService)
+        val filterN = IntentFilter(INTENT_FILTER_ACTION)
+        val filterG = IntentFilter(INTENT_FILTER_GB)
+        registerReceiver(nReceiver, filterN)
+        registerReceiver(iReceiver, filterG)
 
         askPermission()
         askNotificationPermission()
@@ -68,6 +74,9 @@ class MainActivity : ComponentActivity() {
                     },
                     onClickList = {
                         viewModel.listNotifications(this)
+                    },
+                    onClickCount = {
+                        viewModel.countNotifications(this)
                     }
                 )
             }

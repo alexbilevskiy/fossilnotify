@@ -17,6 +17,7 @@ fun MainScreen(
     onClickCreateNotify: () -> Unit,
     onClickClearAll: () -> Unit,
     onClickList: () -> Unit,
+    onClickCount: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -55,6 +56,17 @@ fun MainScreen(
         ) {
             Text(
                 text = "List",
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Button(
+            modifier = Modifier
+                .padding(start = 20.dp, end = 20.dp)
+                .fillMaxWidth(),
+            onClick = onClickCount
+        ) {
+            Text(
+                text = "Count notifications",
                 fontWeight = FontWeight.Bold
             )
         }

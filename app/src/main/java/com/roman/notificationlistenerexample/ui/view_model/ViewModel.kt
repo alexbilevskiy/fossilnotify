@@ -26,4 +26,10 @@ class ViewModel {
         intent.putExtra("command", "list")
         context.sendBroadcast(intent)
     }
+
+    fun countNotifications(context: Context) {
+        val intent = Intent(INTENT_FILTER_ACTION)
+        intent.putExtra("command", "count")
+        context.sendBroadcast(intent)
+    }
 }
