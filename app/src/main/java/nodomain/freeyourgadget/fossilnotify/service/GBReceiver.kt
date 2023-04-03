@@ -12,10 +12,12 @@ class GBReceiver(
 ): BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        val tgCount = intent?.getIntExtra("tg_count", 0)
-        Log.d("test", "TG count: $tgCount")
-        gbService.sendWidgetData("Telegram", String.format("%d", tgCount))
-        viewModel.updateText("TG COUNT $tgCount \n ${viewModel.text}")
+        val upperText = intent?.getStringExtra("upper_text")
+        val lowerText = intent?.getStringExtra("lower_text")
+        Log.d("test", String.format("TG: %s, %s", upperText, lowerText))
+
+        gbService.sendWidgetData(upperText.toString(), lowerText.toString())
+        viewModel.updateText(String.format("TG: %s, %s", upperText, lowerText))
     }
 
 }

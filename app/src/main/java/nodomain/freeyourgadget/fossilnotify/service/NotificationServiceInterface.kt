@@ -1,5 +1,5 @@
 package nodomain.freeyourgadget.fossilnotify.service
 
-interface Notification {
+interface NotificationServiceInterface {
     fun showNotification()
 }

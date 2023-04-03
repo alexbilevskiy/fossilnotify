@@ -1,5 +1,6 @@
 package nodomain.freeyourgadget.fossilnotify.service
 
+import android.app.Notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -7,8 +8,6 @@ import android.content.IntentFilter
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
-import com.google.gson.Gson
-import nodomain.freeyourgadget.fossilnotify.data.*
 
 class NLService : NotificationListenerService() {
 
@@ -19,6 +18,7 @@ class NLService : NotificationListenerService() {
     }
 
     private lateinit var nlServiceReceiver : NLServiceReceiver
+    private lateinit var gbService: GBService
 
     override fun onCreate() {
         super.onCreate()
@@ -27,6 +27,8 @@ class NLService : NotificationListenerService() {
         nlServiceReceiver = NLServiceReceiver()
         val filter = IntentFilter(INTENT_FILTER_ACTION)
         registerReceiver(nlServiceReceiver, filter)
+
+        gbService = GBService(applicationContext)
     }
 
     override fun onDestroy() {
@@ -94,21 +96,57 @@ class NLService : NotificationListenerService() {
 
     private fun countNotifications(fromUi: Boolean = false) {
         var tgCount = 0
+        var latestSender = ""
+        var upperText = ""
+        var lowerText = ""
         for (sbn in this@NLService.activeNotifications) {
             if (sbn.packageName == "org.telegram.messenger") {
+                if ((sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY) == Notification.FLAG_GROUP_SUMMARY) {
+                    val subText = sbn.notification.extras.getString(Notification.EXTRA_SUMMARY_TEXT, "")
+                    Log.d(TAG, String.format("Group summary: %s", subText))
+                    lowerText = reformatSummary(subText)
+
+                    continue
+                }
                 tgCount++
+                if (latestSender == "") {
+                    latestSender = sbn.notification.extras.getString(Notification.EXTRA_TITLE, "")
+                }
+                val subText = sbn.notification.extras.getString(Notification.EXTRA_SUB_TEXT, "")
+                Log.d(TAG, String.format("sub text: %s", subText))
+                if (lowerText == "") {
+                    lowerText = reformatSummary(subText)
+                }
             }
         }
         Log.d(TAG, "COUNT: $tgCount")
+        if (latestSender != "") {
+            upperText = String.format("%d/%s", tgCount, latestSender.split(" ")[0])
+        } else {
+            upperText = String.format("%d", tgCount)
+        }
+        if (tgCount == 0) {
+            upperText = "no"
+            lowerText = "notif."
+        }
         if(fromUi) {
             val iTg = Intent(INTENT_FILTER_GB)
-            iTg.putExtra("tg_count", tgCount)
+            iTg.putExtra("upper_text", upperText)
+            iTg.putExtra("lower_text", lowerText)
             sendBroadcast(iTg)
         } else {
-            val push = GBPush(Push(PushParams("Telegram", tgCount.toString())))
-            val pushConfigIntent = Intent(GBPushConfigAction)
-            pushConfigIntent.putExtra(GBPushExtra, Gson().toJson(push))
-            sendBroadcast(pushConfigIntent)
+            gbService.sendWidgetData(upperText, lowerText)
         }
+    }
+
+    private fun reformatSummary(summary: String): String {
+        //10 new messages from 7 chats
+        val r = Regex("(?<messages>\\d+) new messages from (?<chats>\\d+) chats")
+        val m = r.matchEntire(summary)
+        if (m != null) {
+            return String.format("%sc %sm", m.groupValues[2], m.groupValues[1])
+        }
+
+        return ""
     }
 }

@@ -11,7 +11,7 @@ import kotlin.random.Random
 
 class NotificationService(
     private val context: Context
-) : Notification {
+) : NotificationServiceInterface {
 
     companion object {
         const val CHANNEL_ID = "my_channel"
