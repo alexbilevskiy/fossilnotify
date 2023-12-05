@@ -15,6 +15,8 @@ data class Push(
 )
 
 data class PushParams(
-    @SerializedName("widgetCustom0._.config.upper_text") val UpperText: String,
-    @SerializedName("widgetCustom0._.config.lower_text") val LowerText: String
+    @SerializedName("widgetCustom0._.config.upper_text") val UpperText0: String,
+    @SerializedName("widgetCustom0._.config.lower_text") val LowerText0: String,
+    @SerializedName("widgetCustom1._.config.upper_text") val UpperText1: String = "",
+    @SerializedName("widgetCustom1._.config.lower_text") val LowerText1: String = ""
 )

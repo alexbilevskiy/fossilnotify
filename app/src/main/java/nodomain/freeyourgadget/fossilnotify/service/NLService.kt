@@ -96,46 +96,79 @@ class NLService : NotificationListenerService() {
 
     private fun countNotifications(fromUi: Boolean = false) {
         var tgCount = 0
+        var totalCount = 0
         var latestSender = ""
-        var upperText = ""
-        var lowerText = ""
+        var upperText0 = ""
+        var lowerText0 = ""
+        var upperText1 = ""
+        var lowerText1 = ""
+        var playbackSet = false
+        var uniq: MutableMap<String, Int> = mutableMapOf()
         for (sbn in this@NLService.activeNotifications) {
+            totalCount++
+
             if (sbn.packageName == "org.telegram.messenger") {
                 if ((sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY) == Notification.FLAG_GROUP_SUMMARY) {
                     val subText = sbn.notification.extras.getString(Notification.EXTRA_SUMMARY_TEXT, "")
                     Log.d(TAG, String.format("Group summary: %s", subText))
-                    lowerText = reformatSummary(subText)
+                    lowerText0 = reformatSummary(subText)
 
                     continue
                 }
-                tgCount++
                 if (latestSender == "") {
                     latestSender = sbn.notification.extras.getString(Notification.EXTRA_TITLE, "")
                 }
+                if (latestSender == "Ongoing Video Chat") {
+                    continue
+                }
+                tgCount++
                 val subText = sbn.notification.extras.getString(Notification.EXTRA_SUB_TEXT, "")
                 Log.d(TAG, String.format("sub text: %s", subText))
-                if (lowerText == "") {
-                    lowerText = reformatSummary(subText)
+                if (lowerText0 == "") {
+                    lowerText0 = reformatSummary(subText)
+                }
+            }
+            if(sbn.notification.channelId == "playback") {
+                totalCount--
+                if (sbn.notification.actions[1].title == "Pause") {
+                    Log.d(TAG, String.format("PLAYING: <%s> title: %s, artist: %s", sbn.notification.actions[1].title, sbn.notification.extras.getString(Notification.EXTRA_TITLE), sbn.notification.extras.getString(Notification.EXTRA_TEXT)))
+                    upperText1 = sbn.notification.extras.getString(Notification.EXTRA_TEXT).toString()
+                    lowerText1 = sbn.notification.extras.getString(Notification.EXTRA_TITLE).toString()
+                    playbackSet = true
+                } else {
+                    Log.d(TAG, String.format("NOT PLAYING: <%s> title: %s, artist: %s", sbn.notification.actions[1].title, sbn.notification.extras.getString(Notification.EXTRA_TITLE), sbn.notification.extras.getString(Notification.EXTRA_TEXT)))
+                }
+            } else {
+                if (!uniq.keys.contains(sbn.packageName)) {
+                    uniq.put(sbn.packageName, 0)
+                } else {
+                    uniq.put(sbn.packageName, uniq.getValue(sbn.packageName)+1)
                 }
             }
         }
         Log.d(TAG, "COUNT: $tgCount")
         if (latestSender != "") {
-            upperText = String.format("%d/%s", tgCount, latestSender.split(" ")[0])
+            upperText0 = String.format("%d/%s", tgCount, latestSender.split(" ")[0])
         } else {
-            upperText = String.format("%d", tgCount)
+            upperText0 = String.format("%d", tgCount)
         }
         if (tgCount == 0) {
-            upperText = "no"
-            lowerText = "notif."
+            upperText0 = "no"
+            lowerText0 = "notif."
+        }
+        if (!playbackSet) {
+            lowerText1 = "np"
+            upperText1 = String.format("%d", uniq.keys.size)
         }
         if(fromUi) {
             val iTg = Intent(INTENT_FILTER_GB)
-            iTg.putExtra("upper_text", upperText)
-            iTg.putExtra("lower_text", lowerText)
+            iTg.putExtra("upper_text0", upperText0)
+            iTg.putExtra("lower_text0", lowerText0)
+            iTg.putExtra("upper_text1", upperText1)
+            iTg.putExtra("lower_text1", lowerText1)
             sendBroadcast(iTg)
         } else {
-            gbService.sendWidgetData(upperText, lowerText)
+            gbService.sendWidgetData(upperText0, lowerText0, upperText1, lowerText1, )
         }
     }
 

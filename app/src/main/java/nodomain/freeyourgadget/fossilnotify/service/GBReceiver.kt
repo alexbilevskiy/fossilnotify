@@ -12,12 +12,14 @@ class GBReceiver(
 ): BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        val upperText = intent?.getStringExtra("upper_text")
-        val lowerText = intent?.getStringExtra("lower_text")
-        Log.d("test", String.format("TG: %s, %s", upperText, lowerText))
+        val upperText0 = intent?.getStringExtra("upper_text0")
+        val lowerText0 = intent?.getStringExtra("lower_text0")
+        val upperText1 = intent?.getStringExtra("upper_text1")
+        val lowerText1 = intent?.getStringExtra("lower_text1")
+        Log.d("test", String.format("NOTIF: %s, %s, %s, %s", upperText0, lowerText0, upperText1, lowerText1))
 
-        gbService.sendWidgetData(upperText.toString(), lowerText.toString())
-        viewModel.updateText(String.format("TG: %s, %s", upperText, lowerText))
+        gbService.sendWidgetData(upperText0.toString(), lowerText0.toString(), upperText1.toString(), lowerText1.toString())
+        viewModel.updateText(String.format("NOTIF: %s, %s, %s, %s", upperText0, lowerText0, upperText1, lowerText1))
     }
 
 }
