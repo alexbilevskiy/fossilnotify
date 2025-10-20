@@ -19,3 +19,6 @@ Explicitly ignores tiktok.
 
 ### Total
 If there is no music playing, prints total number of notifications instead of music in the `custom widget 2` 1st line.
+
+### Preview
+<img width="957" height="1271" alt="image" src="https://github.com/user-attachments/assets/a1013ea8-0f2d-4932-9067-7b820b8c5f5d" />
