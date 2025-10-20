@@ -12,7 +12,7 @@ class NotificationReceiver(
 
     override fun onReceive(context: Context?, intent: Intent?) {
         val newText = intent?.getStringExtra("notification_event") ?: ""
-        Log.d("test", "newText: $newText")
+//        Log.d("test", "newText: $newText")
         viewModel.updateText("$newText \n ${viewModel.text}")
     }
 

@@ -13,12 +13,18 @@ class NLService : NotificationListenerService() {
 
     companion object {
         const val TAG = "NotificationListener"
-        const val  INTENT_FILTER_ACTION = "nodomain.freeyourgadget.fossilnotify.NOTIFICATION_LISTENER_EXAMPLE"
-        const val  INTENT_FILTER_GB = "nodomain.freeyourgadget.fossilnotify.NOTIFICATION_LISTENER_GB"
+        const val INTENT_FILTER_ACTION =
+            "nodomain.freeyourgadget.fossilnotify.NOTIFICATION_LISTENER_EXAMPLE"
+        const val INTENT_FILTER_GB = "nodomain.freeyourgadget.fossilnotify.NOTIFICATION_LISTENER_GB"
     }
 
-    private lateinit var nlServiceReceiver : NLServiceReceiver
+    private lateinit var nlServiceReceiver: NLServiceReceiver
     private lateinit var gbService: GBService
+
+    private var upperText0Prev: String = ""
+    private var lowerText0Prev: String = ""
+    private var upperText1Prev: String = ""
+    private var lowerText1Prev: String = ""
 
     override fun onCreate() {
         super.onCreate()
@@ -39,10 +45,10 @@ class NLService : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
-        Log.d(TAG, "onNotificationPosted")
+//        Log.d(TAG, "onNotificationPosted")
         countNotifications()
         sbn?.let {
-            Log.d(TAG, "Id: ${sbn.id}  ${sbn.notification.tickerText}  ${sbn.packageName}")
+//            Log.d(TAG, "Id: ${sbn.id}  ${sbn.notification.tickerText}  ${sbn.packageName}")
             val intent = Intent(INTENT_FILTER_ACTION)
             intent.putExtra("notification_event", "onNotificationPosted : ${sbn.packageName} n")
             sendBroadcast(intent)
@@ -54,7 +60,7 @@ class NLService : NotificationListenerService() {
         Log.d(TAG, "onNotificationRemoved")
         countNotifications()
         sbn?.let {
-            Log.d(TAG, "Id: ${sbn.id}  ${sbn.notification.tickerText}  ${sbn.packageName}")
+//            Log.d(TAG, "Id: ${sbn.id}  ${sbn.notification.tickerText}  ${sbn.packageName}")
             val intent = Intent(INTENT_FILTER_ACTION)
             intent.putExtra("notification_event", "onNotificationRemoved : ${sbn.packageName} n")
             sendBroadcast(intent)
@@ -64,7 +70,7 @@ class NLService : NotificationListenerService() {
     override fun onNotificationRankingUpdate(rankingMap: RankingMap?) {
         super.onNotificationRankingUpdate(rankingMap)
         countNotifications()
-        Log.d(TAG, "onNotificationRankingUpdate")
+//        Log.d(TAG, "onNotificationRankingUpdate")
     }
 
     internal inner class NLServiceReceiver : BroadcastReceiver() {
@@ -80,7 +86,10 @@ class NLService : NotificationListenerService() {
                     var i = 1
                     for (sbn in this@NLService.activeNotifications) {
                         val i2 = Intent(INTENT_FILTER_ACTION)
-                        i2.putExtra("notification_event", "($i) Channel: ${sbn.notification.channelId}, Package: ${sbn.packageName}\n")
+                        i2.putExtra(
+                            "notification_event",
+                            "($i) Channel: ${sbn.notification.channelId}, Package: ${sbn.packageName}\n"
+                        )
                         sendBroadcast(i2)
                         i++
                     }
@@ -109,7 +118,8 @@ class NLService : NotificationListenerService() {
 
             if (sbn.packageName == "org.telegram.messenger.web") {
                 if ((sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY) == Notification.FLAG_GROUP_SUMMARY) {
-                    val subText = sbn.notification.extras.getString(Notification.EXTRA_SUMMARY_TEXT, "")
+                    val subText =
+                        sbn.notification.extras.getString(Notification.EXTRA_SUMMARY_TEXT, "")
                     Log.d(TAG, String.format("Group summary: %s", subText))
                     lowerText0 = reformatSummary(subText)
 
@@ -118,7 +128,7 @@ class NLService : NotificationListenerService() {
                 if (latestSender == "") {
                     latestSender = sbn.notification.extras.getString(Notification.EXTRA_TITLE, "")
                 }
-                Log.d(TAG, String.format("sender: %s", latestSender))
+//                Log.d(TAG, String.format("sender: %s", latestSender))
 
                 if (latestSender == "Ongoing Video Chat" || latestSender == "Ongoing Telegram call") {
                     latestSender = ""
@@ -126,32 +136,38 @@ class NLService : NotificationListenerService() {
                 }
                 tgCount++
                 val subText = sbn.notification.extras.getString(Notification.EXTRA_SUB_TEXT, "")
-                Log.d(TAG, String.format("sub text: %s", subText))
+//                Log.d(TAG, String.format("sub text: %s", subText))
                 if (lowerText0 == "") {
                     lowerText0 = reformatSummary(subText)
                 }
             } else {
 //                Log.d(TAG, String.format("SKIP: %s", sbn.packageName))
             }
-            if(sbn.notification.channelId == "playback") {
+            if (sbn.notification.channelId == "playback") {
                 totalCount--
+                if (sbn.packageName == "com.ss.android.ugc.trill" || sbn.packageName == "com.zhiliaoapp.musically") {
+                    // tiktok spams in media session
+                    continue
+                }
                 if (sbn.notification.actions[1].title == "Pause") {
-                    Log.d(TAG, String.format("PLAYING: <%s> title: %s, artist: %s", sbn.notification.actions[1].title, sbn.notification.extras.getString(Notification.EXTRA_TITLE), sbn.notification.extras.getString(Notification.EXTRA_TEXT)))
-                    upperText1 = sbn.notification.extras.getString(Notification.EXTRA_TITLE).toString()
-                    lowerText1 = sbn.notification.extras.getString(Notification.EXTRA_TEXT).toString()
+//                    Log.d(TAG, String.format("PLAYING: <%s> title: %s, artist: %s", sbn.notification.actions[1].title, sbn.notification.extras.getString(Notification.EXTRA_TITLE), sbn.notification.extras.getString(Notification.EXTRA_TEXT)))
+                    upperText1 =
+                        sbn.notification.extras.getString(Notification.EXTRA_TITLE).toString()
+                    lowerText1 =
+                        sbn.notification.extras.getString(Notification.EXTRA_TEXT).toString()
                     playbackSet = true
                 } else {
-                    Log.d(TAG, String.format("NOT PLAYING: <%s> title: %s, artist: %s", sbn.notification.actions[1].title, sbn.notification.extras.getString(Notification.EXTRA_TITLE), sbn.notification.extras.getString(Notification.EXTRA_TEXT)))
+//                    Log.d(TAG, String.format("NOT PLAYING: <%s> title: %s, artist: %s", sbn.notification.actions[1].title, sbn.notification.extras.getString(Notification.EXTRA_TITLE), sbn.notification.extras.getString(Notification.EXTRA_TEXT)))
                 }
             } else {
                 if (!uniq.keys.contains(sbn.packageName)) {
                     uniq.put(sbn.packageName, 0)
                 } else {
-                    uniq.put(sbn.packageName, uniq.getValue(sbn.packageName)+1)
+                    uniq.put(sbn.packageName, uniq.getValue(sbn.packageName) + 1)
                 }
             }
         }
-        Log.d(TAG, "COUNT: $tgCount")
+//        Log.d(TAG, "COUNT: $tgCount")
         if (latestSender != "") {
             upperText0 = String.format("%d/%s", tgCount, latestSender.split(" ")[0])
         } else {
@@ -169,15 +185,31 @@ class NLService : NotificationListenerService() {
                 lowerText1 = String.format("%d", uniq.keys.size)
             }
         }
-        if(fromUi) {
+        var changed = false
+        if (upperText0 != upperText0Prev ||
+            lowerText0 != lowerText0Prev ||
+            upperText1 != upperText1Prev ||
+            lowerText1 != lowerText1Prev
+        ) {
+            changed = true
+            Log.d(TAG, String.format("sending: has changes"))
+            upperText0Prev = upperText0
+            lowerText0Prev = lowerText0
+            upperText1Prev = upperText1
+            lowerText1Prev = lowerText1
+        } else {
+            changed = false
+            Log.d(TAG, String.format("not sending: nothing changed"))
+        }
+        if (fromUi) {
             val iTg = Intent(INTENT_FILTER_GB)
             iTg.putExtra("upper_text0", upperText0)
             iTg.putExtra("lower_text0", lowerText0)
             iTg.putExtra("upper_text1", upperText1)
             iTg.putExtra("lower_text1", lowerText1)
             sendBroadcast(iTg)
-        } else {
-            gbService.sendWidgetData(upperText0, lowerText0, upperText1, lowerText1, )
+        } else if (changed) {
+            gbService.sendWidgetData(upperText0, lowerText0, upperText1, lowerText1)
         }
     }
 
