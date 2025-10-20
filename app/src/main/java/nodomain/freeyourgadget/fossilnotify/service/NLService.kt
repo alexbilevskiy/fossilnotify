@@ -130,13 +130,15 @@ class NLService : NotificationListenerService() {
                 if (lowerText0 == "") {
                     lowerText0 = reformatSummary(subText)
                 }
+            } else {
+//                Log.d(TAG, String.format("SKIP: %s", sbn.packageName))
             }
             if(sbn.notification.channelId == "playback") {
                 totalCount--
                 if (sbn.notification.actions[1].title == "Pause") {
                     Log.d(TAG, String.format("PLAYING: <%s> title: %s, artist: %s", sbn.notification.actions[1].title, sbn.notification.extras.getString(Notification.EXTRA_TITLE), sbn.notification.extras.getString(Notification.EXTRA_TEXT)))
-                    upperText1 = sbn.notification.extras.getString(Notification.EXTRA_TEXT).toString()
-                    lowerText1 = sbn.notification.extras.getString(Notification.EXTRA_TITLE).toString()
+                    upperText1 = sbn.notification.extras.getString(Notification.EXTRA_TITLE).toString()
+                    lowerText1 = sbn.notification.extras.getString(Notification.EXTRA_TEXT).toString()
                     playbackSet = true
                 } else {
                     Log.d(TAG, String.format("NOT PLAYING: <%s> title: %s, artist: %s", sbn.notification.actions[1].title, sbn.notification.extras.getString(Notification.EXTRA_TITLE), sbn.notification.extras.getString(Notification.EXTRA_TEXT)))
