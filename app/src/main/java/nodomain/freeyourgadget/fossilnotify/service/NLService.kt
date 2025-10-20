@@ -107,7 +107,7 @@ class NLService : NotificationListenerService() {
         for (sbn in this@NLService.activeNotifications) {
             totalCount++
 
-            if (sbn.packageName == "org.telegram.messenger") {
+            if (sbn.packageName == "org.telegram.messenger.web") {
                 if ((sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY) == Notification.FLAG_GROUP_SUMMARY) {
                     val subText = sbn.notification.extras.getString(Notification.EXTRA_SUMMARY_TEXT, "")
                     Log.d(TAG, String.format("Group summary: %s", subText))
@@ -118,7 +118,10 @@ class NLService : NotificationListenerService() {
                 if (latestSender == "") {
                     latestSender = sbn.notification.extras.getString(Notification.EXTRA_TITLE, "")
                 }
-                if (latestSender == "Ongoing Video Chat") {
+                Log.d(TAG, String.format("sender: %s", latestSender))
+
+                if (latestSender == "Ongoing Video Chat" || latestSender == "Ongoing Telegram call") {
+                    latestSender = ""
                     continue
                 }
                 tgCount++
@@ -153,12 +156,16 @@ class NLService : NotificationListenerService() {
             upperText0 = String.format("%d", tgCount)
         }
         if (tgCount == 0) {
-            upperText0 = "no"
-            lowerText0 = "notif."
+            upperText0 = ""
+            lowerText0 = ""
         }
         if (!playbackSet) {
-            lowerText1 = "np"
-            upperText1 = String.format("%d", uniq.keys.size)
+            lowerText1 = ""
+            if (uniq.keys.size == 0) {
+                lowerText1 = ""
+            } else {
+                lowerText1 = String.format("%d", uniq.keys.size)
+            }
         }
         if(fromUi) {
             val iTg = Intent(INTENT_FILTER_GB)
