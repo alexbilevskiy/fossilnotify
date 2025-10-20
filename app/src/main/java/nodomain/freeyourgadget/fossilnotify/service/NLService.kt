@@ -214,8 +214,8 @@ class NLService : NotificationListenerService() {
     }
 
     private fun reformatSummary(summary: String): String {
-        //10 new messages from 7 chats
-        val r = Regex("(?<messages>\\d+) new messages from (?<chats>\\d+) chats")
+        //Alex Surname * 10 new messages from 7 chats
+        val r = Regex(".*(?<messages>\\d+) new messages from (?<chats>\\d+) chats")
         val m = r.matchEntire(summary)
         if (m != null) {
             return String.format("%sc %sm", m.groupValues[2], m.groupValues[1])
