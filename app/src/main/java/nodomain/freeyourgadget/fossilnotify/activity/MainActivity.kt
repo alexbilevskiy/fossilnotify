@@ -8,17 +8,16 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.messaging.FirebaseMessaging
-import nodomain.freeyourgadget.fossilnotify.service.*
-import nodomain.freeyourgadget.fossilnotify.service.NLService.Companion.INTENT_FILTER_ACTION
-import nodomain.freeyourgadget.fossilnotify.service.NLService.Companion.INTENT_FILTER_GB
+import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_FILTER_ACTION
+import nodomain.freeyourgadget.fossilnotify.service.gb.GBService
+import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService
+import nodomain.freeyourgadget.fossilnotify.service.notificationsender.NotificationService
+import nodomain.freeyourgadget.fossilnotify.service.ui.UiBroadcastReceiver
 import nodomain.freeyourgadget.fossilnotify.ui.screens.MainScreen
 import nodomain.freeyourgadget.fossilnotify.ui.theme.NotificationListenerExampleTheme
 import nodomain.freeyourgadget.fossilnotify.ui.view_model.ViewModel
@@ -31,10 +30,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private val viewModel = ViewModel()
-    private lateinit var nService: NotificationService
-    private lateinit var iService: GBService
-    private lateinit var nReceiver: NotificationReceiver
-    private lateinit var iReceiver: GBReceiver
+    private lateinit var gbService: GBService
+
+    private lateinit var notificationService: NotificationService
+    private lateinit var uiBroadcastReceiver: UiBroadcastReceiver
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -49,34 +48,26 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        nService = NotificationService(applicationContext)
-        iService = GBService(applicationContext)
-        nReceiver = NotificationReceiver(viewModel)
-        iReceiver = GBReceiver(viewModel, iService)
-        val filterN = IntentFilter(INTENT_FILTER_ACTION)
-        val filterG = IntentFilter(INTENT_FILTER_GB)
-        registerReceiver(nReceiver, filterN)
-        registerReceiver(iReceiver, filterG)
+        gbService = GBService(applicationContext)
+
+        notificationService = NotificationService(applicationContext)
+        uiBroadcastReceiver = UiBroadcastReceiver(viewModel, gbService)
+        registerReceiver(uiBroadcastReceiver, IntentFilter(INTENT_FILTER_ACTION))
 
         askPermission()
         askNotificationPermission()
-        fcnToken()
 
         setContent {
             NotificationListenerExampleTheme {
                 MainScreen(
                     text = viewModel.text,
-                    onClickClearAll = {
-                        viewModel.clearAllNotifications(this)
-                    },
                     onClickCreateNotify = {
-                        nService.showNotification()
-                    },
-                    onClickList = {
-                        viewModel.listNotifications(this)
+                        notificationService.showNotification()
                     },
                     onClickCount = {
-                        viewModel.countNotifications(this)
+                        val intent = Intent(INTENT_FILTER_ACTION)
+                        intent.putExtra("command", "count")
+                        applicationContext.sendBroadcast(intent)
                     }
                 )
             }
@@ -85,11 +76,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(nReceiver)
+        unregisterReceiver(uiBroadcastReceiver)
     }
 
     private fun askPermission() {
-        val cn = ComponentName(applicationContext, NLService::class.java)
+        val cn = ComponentName(applicationContext, NotificationListenerService::class.java)
         val flat: String = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
         val enabled = flat.contains(cn.flattenToString())
 
@@ -117,18 +108,5 @@ class MainActivity : ComponentActivity() {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
-    }
-
-    private fun fcnToken() {
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                Log.w(TAG, "Fetching FCM registration token failed", task.exception)
-                return@OnCompleteListener
-            }
-
-            // Get new FCM registration token
-            val token = task.result
-            Log.d(TAG, "FCM Token: $token")
-        })
     }
 }

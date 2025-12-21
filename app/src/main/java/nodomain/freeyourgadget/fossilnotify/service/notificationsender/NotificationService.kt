@@ -1,4 +1,4 @@
-package nodomain.freeyourgadget.fossilnotify.service
+package nodomain.freeyourgadget.fossilnotify.service.notificationsender
 
 import android.app.NotificationManager
 import android.app.PendingIntent

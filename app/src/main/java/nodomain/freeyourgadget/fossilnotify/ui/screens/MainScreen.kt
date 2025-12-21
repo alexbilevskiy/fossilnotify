@@ -15,8 +15,6 @@ import androidx.compose.ui.unit.dp
 fun MainScreen(
     text: String,
     onClickCreateNotify: () -> Unit,
-    onClickClearAll: () -> Unit,
-    onClickList: () -> Unit,
     onClickCount: () -> Unit,
 ) {
     Column(
@@ -34,28 +32,6 @@ fun MainScreen(
         ) {
             Text(
                 text = "Create Notify",
-                fontWeight = FontWeight.Bold
-            )
-        }
-        Button(
-            modifier = Modifier
-                .padding(start = 20.dp, end = 20.dp)
-                .fillMaxWidth(),
-            onClick = onClickClearAll
-        ) {
-            Text(
-                text = "Clear All",
-                fontWeight = FontWeight.Bold
-            )
-        }
-        Button(
-            modifier = Modifier
-                .padding(start = 20.dp, end = 20.dp)
-                .fillMaxWidth(),
-            onClick = onClickList
-        ) {
-            Text(
-                text = "List",
                 fontWeight = FontWeight.Bold
             )
         }

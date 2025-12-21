@@ -1,109 +1,30 @@
-package nodomain.freeyourgadget.fossilnotify.service
+package nodomain.freeyourgadget.fossilnotify.service.gb
 
 import android.app.Notification
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.service.notification.NotificationListenerService
-import android.service.notification.StatusBarNotification
 import android.util.Log
+import com.google.gson.Gson
+import nodomain.freeyourgadget.fossilnotify.data.*
+import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_FILTER_ACTION
+import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.TAG
 
-class NLService : NotificationListenerService() {
-
-    companion object {
-        const val TAG = "NotificationListener"
-        const val INTENT_FILTER_ACTION =
-            "nodomain.freeyourgadget.fossilnotify.NOTIFICATION_LISTENER_EXAMPLE"
-        const val INTENT_FILTER_GB = "nodomain.freeyourgadget.fossilnotify.NOTIFICATION_LISTENER_GB"
-    }
-
-    private lateinit var nlServiceReceiver: NLServiceReceiver
-    private lateinit var gbService: GBService
-
+class GBService(
+    private val applicationContext: Context
+) {
     private var upperText0Prev: String = ""
     private var lowerText0Prev: String = ""
     private var upperText1Prev: String = ""
     private var lowerText1Prev: String = ""
 
-    override fun onCreate() {
-        super.onCreate()
-        Log.d(TAG, "onCreate")
-
-        nlServiceReceiver = NLServiceReceiver()
-        val filter = IntentFilter(INTENT_FILTER_ACTION)
-        registerReceiver(nlServiceReceiver, filter)
-
-        gbService = GBService(applicationContext)
+    fun sendWidgetData(upperText0: String, lowerText0: String, upperText1: String = "", lowerText1: String = "", ) {
+        val push = GBPush(Push(PushParams(upperText0, lowerText0, upperText1, lowerText1)))
+        val pushConfigIntent = Intent(GBPushConfigAction)
+        pushConfigIntent.putExtra(GBPushExtra, Gson().toJson(push))
+        applicationContext.sendBroadcast(pushConfigIntent)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(nlServiceReceiver)
-        Log.d(TAG, "onDestroy")
-    }
-
-    override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        super.onNotificationPosted(sbn)
-//        Log.d(TAG, "onNotificationPosted")
-        countNotifications()
-        sbn?.let {
-//            Log.d(TAG, "Id: ${sbn.id}  ${sbn.notification.tickerText}  ${sbn.packageName}")
-            val intent = Intent(INTENT_FILTER_ACTION)
-            intent.putExtra("notification_event", "onNotificationPosted : ${sbn.packageName} n")
-            sendBroadcast(intent)
-        }
-    }
-
-    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        super.onNotificationRemoved(sbn)
-        Log.d(TAG, "onNotificationRemoved")
-        countNotifications()
-        sbn?.let {
-//            Log.d(TAG, "Id: ${sbn.id}  ${sbn.notification.tickerText}  ${sbn.packageName}")
-            val intent = Intent(INTENT_FILTER_ACTION)
-            intent.putExtra("notification_event", "onNotificationRemoved : ${sbn.packageName} n")
-            sendBroadcast(intent)
-        }
-    }
-
-    override fun onNotificationRankingUpdate(rankingMap: RankingMap?) {
-        super.onNotificationRankingUpdate(rankingMap)
-        countNotifications()
-//        Log.d(TAG, "onNotificationRankingUpdate")
-    }
-
-    internal inner class NLServiceReceiver : BroadcastReceiver() {
-
-        override fun onReceive(context: Context?, intent: Intent?) {
-            intent?.let {
-                if (it.getStringExtra("command") == "clearall") {
-                    this@NLService.cancelAllNotifications()
-                } else if (it.getStringExtra("command") == "list") {
-                    val i1 = Intent(INTENT_FILTER_ACTION)
-                    i1.putExtra("notification_event", "=======================")
-                    sendBroadcast(i1)
-                    var i = 1
-                    for (sbn in this@NLService.activeNotifications) {
-                        val i2 = Intent(INTENT_FILTER_ACTION)
-                        i2.putExtra(
-                            "notification_event",
-                            "($i) Channel: ${sbn.notification.channelId}, Package: ${sbn.packageName}\n"
-                        )
-                        sendBroadcast(i2)
-                        i++
-                    }
-                    val i3 = Intent(INTENT_FILTER_ACTION)
-                    i3.putExtra("notification_event", "===== Notification List ====")
-                    sendBroadcast(i3)
-                } else if (it.getStringExtra("command") == "count") {
-                    countNotifications(true)
-                }
-            }
-        }
-    }
-
-    private fun countNotifications(fromUi: Boolean = false) {
+    fun countNotifications(notificationsList: Array<android.service.notification.StatusBarNotification>, fromUi: Boolean = false) {
         var tgCount = 0
         var totalCount = 0
         var latestSender = ""
@@ -113,7 +34,7 @@ class NLService : NotificationListenerService() {
         var lowerText1 = ""
         var playbackSet = false
         var uniq: MutableMap<String, Int> = mutableMapOf()
-        for (sbn in this@NLService.activeNotifications) {
+        for (sbn in notificationsList) {
             totalCount++
 
             if (sbn.packageName == "org.telegram.messenger.web") {
@@ -202,15 +123,15 @@ class NLService : NotificationListenerService() {
             Log.d(TAG, String.format("not sending: nothing changed"))
         }
         if (fromUi) {
-            val iTg = Intent(INTENT_FILTER_GB)
+            val iTg = Intent(INTENT_FILTER_ACTION)
+            iTg.putExtra("command", "count_result")
             iTg.putExtra("upper_text0", upperText0)
             iTg.putExtra("lower_text0", lowerText0)
             iTg.putExtra("upper_text1", upperText1)
             iTg.putExtra("lower_text1", lowerText1)
-            sendBroadcast(iTg)
-        } else if (changed) {
-            gbService.sendWidgetData(upperText0, lowerText0, upperText1, lowerText1)
+            applicationContext.sendBroadcast(iTg)
         }
+        sendWidgetData(upperText0, lowerText0, upperText1, lowerText1)
     }
 
     private fun reformatSummary(summary: String): String {
@@ -223,4 +144,5 @@ class NLService : NotificationListenerService() {
 
         return ""
     }
+
 }

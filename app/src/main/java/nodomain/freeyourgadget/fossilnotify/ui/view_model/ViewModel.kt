@@ -1,11 +1,8 @@
 package nodomain.freeyourgadget.fossilnotify.ui.view_model
 
-import android.content.Context
-import android.content.Intent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import nodomain.freeyourgadget.fossilnotify.service.NLService.Companion.INTENT_FILTER_ACTION
 
 class ViewModel {
     var text by mutableStateOf("No Notifications To Display")
@@ -13,23 +10,5 @@ class ViewModel {
 
     fun updateText(newText: String) {
         text = newText
-    }
-
-    fun clearAllNotifications(context: Context) {
-        val intent = Intent(INTENT_FILTER_ACTION)
-        intent.putExtra("command", "clearall")
-        context.sendBroadcast(intent)
-    }
-
-    fun listNotifications(context: Context) {
-        val intent = Intent(INTENT_FILTER_ACTION)
-        intent.putExtra("command", "list")
-        context.sendBroadcast(intent)
-    }
-
-    fun countNotifications(context: Context) {
-        val intent = Intent(INTENT_FILTER_ACTION)
-        intent.putExtra("command", "count")
-        context.sendBroadcast(intent)
     }
 }
