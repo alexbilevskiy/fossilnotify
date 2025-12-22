@@ -52,7 +52,4 @@ dependencies {
     implementation(libs.androidx.material)
 
     implementation(libs.gson)
-
-//    implementation ("com.getpebble:pebblekit:4.0.1")
-//    implementation(project(":libpebble3"))
 }
