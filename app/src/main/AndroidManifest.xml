@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="nodomain.freeyourgadget.fossilnotify" 
+<manifest package="nodomain.freeyourgadget.fossilnotify"
  	 xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
