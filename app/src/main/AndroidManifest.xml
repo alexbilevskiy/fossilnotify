@@ -3,6 +3,7 @@
  	 xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -12,17 +13,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.NotificationListenerExample"
-        tools:targetApi="31">
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/ic_android" />
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/purple_700" />
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="@string/app_name" />
+        android:theme="@style/Theme.NotificationListenerExample">
         <activity
             android:name=".activity.MainActivity"
             android:exported="true"
@@ -32,10 +23,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
         </activity>
         <service
             android:name=".service.notificationlistener.NotificationListenerService"

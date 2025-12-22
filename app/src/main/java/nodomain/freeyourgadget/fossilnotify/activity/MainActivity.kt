@@ -54,8 +54,8 @@ class MainActivity : ComponentActivity() {
         uiBroadcastReceiver = UiBroadcastReceiver(viewModel, gbService)
         registerReceiver(uiBroadcastReceiver, IntentFilter(INTENT_FILTER_ACTION))
 
-        askPermission()
-        askNotificationPermission()
+        askListenNotificationsPermission()
+        askPostNotificationsPermission()
 
         setContent {
             NotificationListenerExampleTheme {
@@ -79,7 +79,7 @@ class MainActivity : ComponentActivity() {
         unregisterReceiver(uiBroadcastReceiver)
     }
 
-    private fun askPermission() {
+    private fun askListenNotificationsPermission() {
         val cn = ComponentName(applicationContext, NotificationListenerService::class.java)
         val flat: String = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
         val enabled = flat.contains(cn.flattenToString())
@@ -90,12 +90,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun askNotificationPermission() {
+    private fun askPostNotificationsPermission() {
         // This is only necessary for API level >= 33 (TIRAMISU)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
-                PackageManager.PERMISSION_GRANTED
-            ) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
                 // FCM SDK (and your app) can post notifications.
             } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
                 // TODO: display an educational UI explaining to the user the features that will be enabled
