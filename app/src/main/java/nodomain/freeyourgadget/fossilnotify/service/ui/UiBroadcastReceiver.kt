@@ -19,7 +19,7 @@ class UiBroadcastReceiver(
         val lowerText1 = intent?.getStringExtra("lower_text1")
         Log.d("test", String.format("NOTIF: %s, %s, %s, %s", upperText0, lowerText0, upperText1, lowerText1))
 
-        gbService.sendWidgetData(upperText0.toString(), lowerText0.toString(), upperText1.toString(), lowerText1.toString())
+        gbService.sendFossilWidgetData(upperText0.toString(), lowerText0.toString(), upperText1.toString(), lowerText1.toString())
         viewModel.updateText(String.format("NOTIF: %s, %s, %s, %s", upperText0, lowerText0, upperText1, lowerText1))
     }
 

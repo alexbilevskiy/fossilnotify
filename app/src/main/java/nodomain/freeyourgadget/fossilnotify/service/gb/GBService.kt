@@ -5,19 +5,26 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.google.gson.Gson
-import nodomain.freeyourgadget.fossilnotify.data.*
+import nodomain.freeyourgadget.fossilnotify.data.GBPush
+import nodomain.freeyourgadget.fossilnotify.data.GBPushConfigAction
+import nodomain.freeyourgadget.fossilnotify.data.GBPushExtra
+import nodomain.freeyourgadget.fossilnotify.data.Push
+import nodomain.freeyourgadget.fossilnotify.data.PushParams
 import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_FILTER_ACTION
-import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.TAG
 
 class GBService(
     private val applicationContext: Context
 ) {
+    companion object {
+        const val TAG = "GBService"
+    }
+
     private var upperText0Prev: String = ""
     private var lowerText0Prev: String = ""
     private var upperText1Prev: String = ""
     private var lowerText1Prev: String = ""
 
-    fun sendWidgetData(upperText0: String, lowerText0: String, upperText1: String = "", lowerText1: String = "", ) {
+    fun sendFossilWidgetData(upperText0: String, lowerText0: String, upperText1: String = "", lowerText1: String = "") {
         val push = GBPush(Push(PushParams(upperText0, lowerText0, upperText1, lowerText1)))
         val pushConfigIntent = Intent(GBPushConfigAction)
         pushConfigIntent.putExtra(GBPushExtra, Gson().toJson(push))
@@ -131,7 +138,7 @@ class GBService(
             iTg.putExtra("lower_text1", lowerText1)
             applicationContext.sendBroadcast(iTg)
         }
-        sendWidgetData(upperText0, lowerText0, upperText1, lowerText1)
+        sendFossilWidgetData(upperText0, lowerText0, upperText1, lowerText1)
     }
 
     private fun reformatSummary(summary: String): String {
