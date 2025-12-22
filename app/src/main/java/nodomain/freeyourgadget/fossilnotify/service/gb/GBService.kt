@@ -25,6 +25,7 @@ class GBService(
     private var lowerText1Prev: String = ""
 
     fun sendFossilWidgetData(upperText0: String, lowerText0: String, upperText1: String = "", lowerText1: String = "") {
+        Log.d(TAG, String.format("NOTIF: %s, %s, %s, %s", upperText0, lowerText0, upperText1, lowerText1))
         val push = GBPush(Push(PushParams(upperText0, lowerText0, upperText1, lowerText1)))
         val pushConfigIntent = Intent(GBPushConfigAction)
         pushConfigIntent.putExtra(GBPushExtra, Gson().toJson(push))
@@ -120,14 +121,10 @@ class GBService(
             lowerText1 != lowerText1Prev
         ) {
             changed = true
-            Log.d(TAG, String.format("sending: has changes"))
             upperText0Prev = upperText0
             lowerText0Prev = lowerText0
             upperText1Prev = upperText1
             lowerText1Prev = lowerText1
-        } else {
-            changed = false
-            Log.d(TAG, String.format("not sending: nothing changed"))
         }
         if (fromUi) {
             val iTg = Intent(INTENT_FILTER_ACTION)
@@ -137,6 +134,14 @@ class GBService(
             iTg.putExtra("upper_text1", upperText1)
             iTg.putExtra("lower_text1", lowerText1)
             applicationContext.sendBroadcast(iTg)
+        }
+        if (fromUi) {
+            Log.d(TAG, String.format("sending: from UI"))
+        } else if (changed) {
+            Log.d(TAG, String.format("sending: has changes"))
+        } else {
+            Log.d(TAG, String.format("not sending: nothing changed"))
+            return
         }
         sendFossilWidgetData(upperText0, lowerText0, upperText1, lowerText1)
     }
