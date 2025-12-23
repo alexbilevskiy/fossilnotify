@@ -22,10 +22,14 @@ rootProject.name = "FossilNotify"
 include(":app")
 
 
-// TODO:  must comment `include(":composeApp")` in libs/libpebble3/settings.gradle.kts to compile on windows
+// TODO: comment these modules in libs/libpebble3/settings.gradle.kts - they are core app components
+//include(":composeApp")
+//include(":pebble")
+//include(":util")
+//include(":experimental")
+
 includeBuild("libs/libpebble3") {
     dependencySubstitution {
-        // "project(':libpebble3')" refers to the module path inside libpebbleroot
         substitute(module("io.rebble.libpebblecommon:libpebble3"))
             .using(project(":libpebble3"))
     }

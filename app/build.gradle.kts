@@ -53,6 +53,6 @@ dependencies {
 
     implementation(libs.gson)
 
-    implementation ("com.getpebble:pebblekit:4.0.1")
+    implementation("com.getpebble:pebblekit:4.0.1")
     implementation("io.rebble.libpebblecommon:libpebble3")
 }
