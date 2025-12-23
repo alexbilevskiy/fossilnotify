@@ -28,7 +28,7 @@ class NotificationListenerService : NotificationListenerService() {
         val filter = IntentFilter(INTENT_FILTER_ACTION)
         registerReceiver(nlServiceReceiver, filter)
 
-        gbService = GBService(applicationContext)
+        this.gbService = GBService(applicationContext)
     }
 
     override fun onDestroy() {

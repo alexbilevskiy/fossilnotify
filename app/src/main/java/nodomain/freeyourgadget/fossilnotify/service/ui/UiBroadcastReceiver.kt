@@ -9,7 +9,6 @@ import nodomain.freeyourgadget.fossilnotify.ui.view_model.ViewModel
 
 class UiBroadcastReceiver(
     private val viewModel: ViewModel,
-    private val gbService: GBService
 ): BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
