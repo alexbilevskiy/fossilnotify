@@ -34,6 +34,7 @@ class NotificationListenerService : NotificationListenerService() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(nlServiceReceiver)
+        this.gbService.close()
         Log.d(TAG, "onDestroy")
     }
 

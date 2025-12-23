@@ -4,9 +4,18 @@ import android.app.Notification
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.getpebble.android.kit.PebbleKit
-import com.getpebble.android.kit.util.PebbleDictionary
 import com.google.gson.Gson
+import io.rebble.pebblekit2.client.DefaultPebbleInfoRetriever
+import io.rebble.pebblekit2.client.DefaultPebbleSender
+import io.rebble.pebblekit2.common.model.PebbleDictionaryItem
+import io.rebble.pebblekit2.model.ConnectedWatch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import nodomain.freeyourgadget.fossilnotify.data.GBPush
 import nodomain.freeyourgadget.fossilnotify.data.GBPushConfigAction
 import nodomain.freeyourgadget.fossilnotify.data.GBPushExtra
@@ -15,12 +24,10 @@ import nodomain.freeyourgadget.fossilnotify.data.PushParams
 import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_FILTER_ACTION
 import java.util.UUID
 
-const val AppKeyTotalNotifications = 0
-const val AppKeyTgSummary = 1
+const val AppKeyTotalNotifications = 0u
+const val AppKeyTgSummary = 1u
 
-class GBService(
-    private val applicationContext: Context
-) {
+class GBService {
     companion object {
         const val TAG = "GBService"
     }
@@ -30,22 +37,68 @@ class GBService(
     private var upperText1Prev: String = ""
     private var lowerText1Prev: String = ""
 
-    val halcyonUuid: UUID = UUID.fromString("c8e97ab8-7c12-45fb-975d-e85d5de61e8b")
+    val halcyonUuid: UUID
+    private val applicationContext: Context
+    private val sender: DefaultPebbleSender
+    private val infoRetriever: DefaultPebbleInfoRetriever
+    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private val watches: MutableMap<String, String> = mutableMapOf()
+
+    constructor(applicationContext: Context) {
+        this.applicationContext = applicationContext
+        this.halcyonUuid = UUID.fromString("c8e97ab8-7c12-45fb-975d-e85d5de61e8b")
+
+        this.sender = DefaultPebbleSender(applicationContext)
+        this.infoRetriever = DefaultPebbleInfoRetriever(applicationContext)
+
+        serviceScope.launch {
+            updateWatches()
+        }
+    }
+
+    suspend fun updateWatches() {
+        Log.d(TAG, "launching getConnectedWatches flow")
+        infoRetriever.getConnectedWatches()
+            .flowOn(Dispatchers.Default)
+            .collect { it: List<ConnectedWatch> ->
+                Log.d(TAG, "Connected watches update: $it")
+                if (it.count() == 0) {
+                    Log.d(TAG, "No watches in update")
+                    watches.clear()
+                } else {
+                    for (w in it) {
+                        Log.d(TAG, "Added watch: ${w.id} / ${w.name}")
+                        watches[w.id.value] = w.name
+                    }
+                }
+            }
+        Log.d(TAG, "finished getConnectedWatches flow")
+    }
 
     fun sendPebbleData() {
-        //@TODO: not working - always shows "not connected"
-        if (!PebbleKit.isWatchConnected(applicationContext)) {
-            Log.d(TAG, "pebble not connected")
+        runBlocking {
+            updateWatches()
+        }
+        if (watches.count() == 0) {
+            Log.d(TAG, "no connected watches")
             return
         }
-        val dict = PebbleDictionary()
-        dict.addInt32(AppKeyTotalNotifications, 0)
-        dict.addString(AppKeyTgSummary, "sender_name: hello")
-        try {
-            PebbleKit.sendDataToPebble(applicationContext, halcyonUuid, dict)
-            Log.d(TAG, "sent to pebble")
-        } catch (e: Exception) {
-            Log.d(TAG, "exception sending to pebble, cause" + e.cause + ", full: " + e.toString())
+        val dataToSend = mapOf(
+            AppKeyTgSummary to PebbleDictionaryItem.String("Hello"),
+            AppKeyTotalNotifications to PebbleDictionaryItem.UInt8(10u),
+        )
+        serviceScope.launch {
+            val result = sender.sendDataToPebble(halcyonUuid, dataToSend)
+            if(result == null) {
+                Log.d(TAG, "pebble app not reachable")
+            } else if (result.isEmpty()) {
+                Log.d(TAG, "sendDataToPebble: no connected watches")
+            } else {
+                for (r in result) {
+                    Log.d(TAG, "transmission result: ${r.key} - ${r.value}")
+                }
+            }
         }
     }
 
@@ -181,6 +234,10 @@ class GBService(
         }
 
         return ""
+    }
+
+    fun close() {
+        serviceScope.cancel()
     }
 
 }

@@ -4,6 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="io.rebble.pebblekit2.permission.SEND_DATA_TO_WATCH"/>
+    <uses-permission android:name="io.rebble.pebblekit2.permission.READ_PROVIDER"/>
+    <uses-permission android:name="io.rebble.pebblekit2.permission.READ_DEVICE_CONFIG"/>
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -32,10 +35,5 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
-        <provider
-            android:authorities="com.getpebble.android.provider.basalt"
-            android:name="io.rebble.libpebblecommon.pebblekit.classic.PebbleKitProvider"
-            tools:ignore="ExportedContentProvider"
-            android:exported="true" />
     </application>
 </manifest>

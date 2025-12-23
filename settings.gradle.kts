@@ -28,9 +28,9 @@ include(":app")
 //include(":util")
 //include(":experimental")
 
-includeBuild("libs/libpebble3") {
-    dependencySubstitution {
-        substitute(module("io.rebble.libpebblecommon:libpebble3"))
-            .using(project(":libpebble3"))
-    }
-}
+//includeBuild("libs/libpebble3") {
+//    dependencySubstitution {
+//        substitute(module("io.rebble.libpebblecommon:libpebble3"))
+//            .using(project(":libpebble3"))
+//    }
+//}
