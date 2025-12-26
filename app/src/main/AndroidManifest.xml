@@ -36,4 +36,7 @@
             </intent-filter>
         </service>
     </application>
+    <queries>
+        <package android:name="coredevices.coreapp" />
+    </queries>
 </manifest>

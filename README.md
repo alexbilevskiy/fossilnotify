@@ -24,4 +24,4 @@ If there is no music playing, prints total number of notifications instead of mu
 <img width="957" height="1271" alt="image" src="https://github.com/user-attachments/assets/a1013ea8-0f2d-4932-9067-7b820b8c5f5d" />
 
 ## Pebble
-Testing on Pebble 2 Duo
+Requires beta version of new pebble [officiall app](https://play.google.com/store/apps/details?id=coredevices.coreapp) >= 1.0.7.10
