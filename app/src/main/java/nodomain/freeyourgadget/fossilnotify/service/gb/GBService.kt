@@ -39,6 +39,8 @@ class GBService {
     private var lowerText0Prev: String = ""
     private var upperText1Prev: String = ""
     private var lowerText1Prev: String = ""
+    private var secondaryText0Prev: String = ""
+    private var secondaryText1Prev: String = ""
 
     val watchfaceUUID: UUID
     private val applicationContext: Context
@@ -144,6 +146,27 @@ class GBService {
         }
     }
 
+    fun cachedSendPebble(fromUi: Boolean, secondaryText0: String, secondaryText1: String) {
+        var changed = false
+        if (secondaryText0 != secondaryText0Prev ||
+            secondaryText1 != secondaryText1Prev
+            ) {
+            changed = true
+            secondaryText0Prev = secondaryText0
+            secondaryText1Prev = secondaryText1
+        }
+        if (fromUi) {
+            Log.d(TAG, String.format("sending pebble: from UI"))
+        } else if (changed) {
+            Log.d(TAG, String.format("sending pebble: has changes"))
+        } else {
+            Log.d(TAG, String.format("not sending pebble: nothing changed"))
+            return
+        }
+
+        sendPebbleData(secondaryText0, secondaryText1)
+    }
+
     fun sendFossilWidgetData(upperText0: String, lowerText0: String, upperText1: String = "", lowerText1: String = "") {
         Log.d(TAG, String.format("NOTIF: %s, %s, %s, %s", upperText0, lowerText0, upperText1, lowerText1))
         val push = GBPush(Push(PushParams(upperText0, lowerText0, upperText1, lowerText1)))
@@ -183,7 +206,6 @@ class GBService {
             return
         }
         sendFossilWidgetData(upperText0, lowerText0, upperText1, lowerText1)
-        sendPebbleData(upperText0, lowerText1)
     }
 
     fun countNotifications(notificationSummary: NotificationSummary, fromUi: Boolean = false) {
@@ -221,5 +243,6 @@ class GBService {
             }
         }
         cachedSendFossil(fromUi, upperText0, lowerText0, upperText1, lowerText1)
+        cachedSendPebble(fromUi, upperText0, lowerText1)
     }
 }
