@@ -4,6 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="io.rebble.pebblekit2.permission.SEND_DATA_TO_WATCH"/>
+    <uses-permission android:name="io.rebble.pebblekit2.permission.READ_PROVIDER"/>
+    <uses-permission android:name="io.rebble.pebblekit2.permission.READ_DEVICE_CONFIG"/>
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -33,5 +36,7 @@
             </intent-filter>
         </service>
     </application>
-
+    <queries>
+        <package android:name="coredevices.coreapp" />
+    </queries>
 </manifest>

@@ -52,4 +52,8 @@ dependencies {
     implementation(libs.androidx.material)
 
     implementation(libs.gson)
+
+//    implementation("io.rebble.libpebblecommon:libpebble3")
+    implementation("com.github.pebble-dev.PebbleKitAndroid2:client:510b3ead6e")
+
 }

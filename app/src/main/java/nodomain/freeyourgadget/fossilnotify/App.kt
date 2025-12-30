@@ -4,7 +4,7 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import nodomain.freeyourgadget.fossilnotify.service.notificationsender.NotificationService
+import nodomain.freeyourgadget.fossilnotify.service.notificationsender.NotificationSender
 
 class App : Application() {
 
@@ -15,7 +15,7 @@ class App : Application() {
 
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
-            NotificationService.CHANNEL_ID,
+            NotificationSender.CHANNEL_ID,
             "My Notification Name In App Settings",
             NotificationManager.IMPORTANCE_DEFAULT
         )

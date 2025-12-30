@@ -1,0 +1,3 @@
+[submodule "libs/libpebble3"]
+	path = libs/libpebble3
+	url = git@github.com:coredevices/mobileapp.git

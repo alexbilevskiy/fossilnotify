@@ -14,9 +14,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_FILTER_ACTION
-import nodomain.freeyourgadget.fossilnotify.service.gb.GBService
 import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService
-import nodomain.freeyourgadget.fossilnotify.service.notificationsender.NotificationService
+import nodomain.freeyourgadget.fossilnotify.service.notificationsender.NotificationSender
 import nodomain.freeyourgadget.fossilnotify.service.ui.UiBroadcastReceiver
 import nodomain.freeyourgadget.fossilnotify.ui.screens.MainScreen
 import nodomain.freeyourgadget.fossilnotify.ui.theme.NotificationListenerExampleTheme
@@ -30,9 +29,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private val viewModel = ViewModel()
-    private lateinit var gbService: GBService
 
-    private lateinit var notificationService: NotificationService
+    private lateinit var notificationSender: NotificationSender
     private lateinit var uiBroadcastReceiver: UiBroadcastReceiver
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -48,10 +46,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        gbService = GBService(applicationContext)
-
-        notificationService = NotificationService(applicationContext)
-        uiBroadcastReceiver = UiBroadcastReceiver(viewModel, gbService)
+        notificationSender = NotificationSender(applicationContext)
+        uiBroadcastReceiver = UiBroadcastReceiver(viewModel)
         registerReceiver(uiBroadcastReceiver, IntentFilter(INTENT_FILTER_ACTION))
 
         askListenNotificationsPermission()
@@ -62,7 +58,7 @@ class MainActivity : ComponentActivity() {
                 MainScreen(
                     text = viewModel.text,
                     onClickCreateNotify = {
-                        notificationService.showNotification()
+                        notificationSender.showNotification()
                     },
                     onClickCount = {
                         val intent = Intent(INTENT_FILTER_ACTION)

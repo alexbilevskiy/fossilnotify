@@ -3,13 +3,10 @@ package nodomain.freeyourgadget.fossilnotify.service.ui
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
-import nodomain.freeyourgadget.fossilnotify.service.gb.GBService
 import nodomain.freeyourgadget.fossilnotify.ui.view_model.ViewModel
 
 class UiBroadcastReceiver(
     private val viewModel: ViewModel,
-    private val gbService: GBService
 ): BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
