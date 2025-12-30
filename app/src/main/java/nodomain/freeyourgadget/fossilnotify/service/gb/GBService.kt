@@ -34,6 +34,39 @@ class GBService(
         applicationContext.sendBroadcast(pushConfigIntent)
     }
 
+    fun cachedSendFossil(fromUi: Boolean, upperText0: String, lowerText0: String, upperText1: String = "", lowerText1: String = "") {
+        var changed = false
+        if (upperText0 != upperText0Prev ||
+            lowerText0 != lowerText0Prev ||
+            upperText1 != upperText1Prev ||
+            lowerText1 != lowerText1Prev
+        ) {
+            changed = true
+            upperText0Prev = upperText0
+            lowerText0Prev = lowerText0
+            upperText1Prev = upperText1
+            lowerText1Prev = lowerText1
+        }
+        if (fromUi) {
+            val iTg = Intent(INTENT_FILTER_ACTION)
+            iTg.putExtra("command", "count_result")
+            iTg.putExtra("upper_text0", upperText0)
+            iTg.putExtra("lower_text0", lowerText0)
+            iTg.putExtra("upper_text1", upperText1)
+            iTg.putExtra("lower_text1", lowerText1)
+            applicationContext.sendBroadcast(iTg)
+        }
+        if (fromUi) {
+            Log.d(TAG, String.format("sending: from UI"))
+        } else if (changed) {
+            Log.d(TAG, String.format("sending: has changes"))
+        } else {
+            Log.d(TAG, String.format("not sending: nothing changed"))
+            return
+        }
+        sendFossilWidgetData(upperText0, lowerText0, upperText1, lowerText1)
+    }
+
     fun countNotifications(notificationSummary: NotificationSummary, fromUi: Boolean = false) {
         // upper1, lower1 = media or total count. upper0 = tg count+sender, lower0 = tg summary
         var upperText0 = ""
@@ -68,35 +101,6 @@ class GBService(
                 lowerText1 = String.format("%d", notificationSummary.totalInfo.totalNotificationsCount)
             }
         }
-        var changed = false
-        if (upperText0 != upperText0Prev ||
-            lowerText0 != lowerText0Prev ||
-            upperText1 != upperText1Prev ||
-            lowerText1 != lowerText1Prev
-        ) {
-            changed = true
-            upperText0Prev = upperText0
-            lowerText0Prev = lowerText0
-            upperText1Prev = upperText1
-            lowerText1Prev = lowerText1
-        }
-        if (fromUi) {
-            val iTg = Intent(INTENT_FILTER_ACTION)
-            iTg.putExtra("command", "count_result")
-            iTg.putExtra("upper_text0", upperText0)
-            iTg.putExtra("lower_text0", lowerText0)
-            iTg.putExtra("upper_text1", upperText1)
-            iTg.putExtra("lower_text1", lowerText1)
-            applicationContext.sendBroadcast(iTg)
-        }
-        if (fromUi) {
-            Log.d(TAG, String.format("sending: from UI"))
-        } else if (changed) {
-            Log.d(TAG, String.format("sending: has changes"))
-        } else {
-            Log.d(TAG, String.format("not sending: nothing changed"))
-            return
-        }
-        sendFossilWidgetData(upperText0, lowerText0, upperText1, lowerText1)
+        cachedSendFossil(fromUi, upperText0, lowerText0, upperText1, lowerText1)
     }
 }
