@@ -20,6 +20,8 @@ import kotlinx.coroutines.launch
 import nodomain.freeyourgadget.fossilnotify.data.GBPush
 import nodomain.freeyourgadget.fossilnotify.data.GBPushConfigAction
 import nodomain.freeyourgadget.fossilnotify.data.GBPushExtra
+import nodomain.freeyourgadget.fossilnotify.data.MediaState
+import nodomain.freeyourgadget.fossilnotify.data.NotificationSummary
 import nodomain.freeyourgadget.fossilnotify.data.Push
 import nodomain.freeyourgadget.fossilnotify.data.PushParams
 import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_FILTER_ACTION
@@ -146,86 +148,38 @@ class GBService {
         applicationContext.sendBroadcast(pushConfigIntent)
     }
 
-    fun countNotifications(notificationsList: Array<android.service.notification.StatusBarNotification>, fromUi: Boolean = false) {
-        var tgCount = 0
-        var totalCount = 0
-        var latestSender = ""
+    fun countNotifications(notificationSummary: NotificationSummary, fromUi: Boolean = false) {
+        // upper1, lower1 = media or total count. upper0 = tg count+sender, lower0 = tg summary
         var upperText0 = ""
         var lowerText0 = ""
         var upperText1 = ""
         var lowerText1 = ""
         var playbackSet = false
-        var uniq: MutableMap<String, Int> = mutableMapOf()
-        for (sbn in notificationsList) {
-            totalCount++
-
-            if (sbn.packageName == "org.telegram.messenger.web") {
-                if ((sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY) == Notification.FLAG_GROUP_SUMMARY) {
-                    val subText =
-                        sbn.notification.extras.getString(Notification.EXTRA_SUMMARY_TEXT, "")
-                    Log.d(TAG, String.format("Group summary: %s", subText))
-                    lowerText0 = reformatSummary(subText)
-
-                    continue
-                }
-                if (latestSender == "") {
-                    latestSender = sbn.notification.extras.getString(Notification.EXTRA_TITLE, "")
-                }
-//                Log.d(TAG, String.format("sender: %s", latestSender))
-
-                if (latestSender == "Ongoing Video Chat" || latestSender == "Ongoing Telegram call") {
-                    latestSender = ""
-                    continue
-                }
-                tgCount++
-                val subText = sbn.notification.extras.getString(Notification.EXTRA_SUB_TEXT, "")
-//                Log.d(TAG, String.format("sub text: %s", subText))
-                if (lowerText0 == "") {
-                    lowerText0 = reformatSummary(subText)
-                }
+        var tgSummary = notificationSummary.messengerInfo["org.telegram.messenger.web"]
+        if (tgSummary != null) {
+            if (tgSummary.lastSenderName != "") {
+                upperText0 = String.format("%d/%s", tgSummary.unreadDialogsCount, tgSummary.lastSenderName.split(" ")[0])
             } else {
-//                Log.d(TAG, String.format("SKIP: %s", sbn.packageName))
+                upperText0 = String.format("%d", tgSummary.unreadDialogsCount)
             }
-            if (sbn.notification.channelId == "playback") {
-                totalCount--
-                if (sbn.packageName == "com.ss.android.ugc.trill" || sbn.packageName == "com.zhiliaoapp.musically") {
-                    // tiktok spams in media session
-                    continue
-                }
-                if (sbn.notification.actions[1].title == "Pause") {
-//                    Log.d(TAG, String.format("PLAYING: <%s> title: %s, artist: %s", sbn.notification.actions[1].title, sbn.notification.extras.getString(Notification.EXTRA_TITLE), sbn.notification.extras.getString(Notification.EXTRA_TEXT)))
-                    upperText1 =
-                        sbn.notification.extras.getString(Notification.EXTRA_TITLE).toString()
-                    lowerText1 =
-                        sbn.notification.extras.getString(Notification.EXTRA_TEXT).toString()
-                    playbackSet = true
-                } else {
-//                    Log.d(TAG, String.format("NOT PLAYING: <%s> title: %s, artist: %s", sbn.notification.actions[1].title, sbn.notification.extras.getString(Notification.EXTRA_TITLE), sbn.notification.extras.getString(Notification.EXTRA_TEXT)))
-                }
-            } else {
-                if (!uniq.keys.contains(sbn.packageName)) {
-                    uniq.put(sbn.packageName, 0)
-                } else {
-                    uniq.put(sbn.packageName, uniq.getValue(sbn.packageName) + 1)
-                }
-            }
-        }
-//        Log.d(TAG, "COUNT: $tgCount")
-        if (latestSender != "") {
-            upperText0 = String.format("%d/%s", tgCount, latestSender.split(" ")[0])
+            lowerText0 = String.format("%dc, %dm", tgSummary.unreadChatsCount, tgSummary.unreadMessagesCount)
         } else {
-            upperText0 = String.format("%d", tgCount)
-        }
-        if (tgCount == 0) {
             upperText0 = ""
             lowerText0 = ""
         }
+
+        if (notificationSummary.mediaInfo.isNotEmpty()) {
+            val mediaSession = notificationSummary.mediaInfo.entries.first().value
+            if (mediaSession.state == MediaState.Playing) {
+                upperText1 = mediaSession.artist
+                lowerText1 = mediaSession.title
+                playbackSet = true
+            }
+        }
+
         if (!playbackSet) {
-            lowerText1 = ""
-            if (uniq.keys.size == 0) {
-                lowerText1 = ""
-            } else {
-                lowerText1 = String.format("%d", uniq.keys.size)
+            if (notificationSummary.totalInfo.totalNotificationsCount > 0) {
+                lowerText1 = String.format("%d", notificationSummary.totalInfo.totalNotificationsCount)
             }
         }
         var changed = false
@@ -259,17 +213,6 @@ class GBService {
         }
         sendFossilWidgetData(upperText0, lowerText0, upperText1, lowerText1)
         sendPebbleData(upperText0, lowerText1)
-    }
-
-    private fun reformatSummary(summary: String): String {
-        //Alex Surname * 10 new messages from 7 chats
-        val r = Regex(".*(?<messages>\\d+) new messages from (?<chats>\\d+) chats")
-        val m = r.matchEntire(summary)
-        if (m != null) {
-            return String.format("%sc %sm", m.groupValues[2], m.groupValues[1])
-        }
-
-        return ""
     }
 
     fun close() {
