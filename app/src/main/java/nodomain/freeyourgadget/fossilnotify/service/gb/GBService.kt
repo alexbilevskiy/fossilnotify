@@ -178,7 +178,7 @@ class GBService {
     }
 
     fun sendFossilWidgetData(upperText0: String, lowerText0: String, upperText1: String = "", lowerText1: String = "") {
-        Log.d(TAG, String.format("NOTIF: %s, %s, %s, %s", upperText0, lowerText0, upperText1, lowerText1))
+        Log.d(TAG, String.format("NOTIFY FOSSIL: `%s`, `%s`, `%s`, `%s`", upperText0, lowerText0, upperText1, lowerText1))
         val push = GBPush(Push(PushParams(upperText0, lowerText0, upperText1, lowerText1)))
         val pushConfigIntent = Intent(GBPushConfigAction)
         pushConfigIntent.putExtra(GBPushExtra, Gson().toJson(push))
