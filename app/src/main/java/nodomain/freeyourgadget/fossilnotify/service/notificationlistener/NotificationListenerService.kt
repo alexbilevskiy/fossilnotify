@@ -98,27 +98,34 @@ class NotificationListenerService : NotificationListenerService() {
             }
 
             if (pkg == "org.telegram.messenger.web") {
-                val sender = sbn.notification.extras.getString(Notification.EXTRA_TITLE, "")
-                if (sender == "Ongoing Video Chat" || sender == "Ongoing Telegram call") {
-                    continue
-                }
                 if(summary.messengerInfo[pkg] == null) {
                     summary.messengerInfo[pkg] = MessengerInfo()
                 }
-                summary.messengerInfo[pkg]?.lastSenderName = sender
-                summary.messengerInfo[pkg]?.unreadDialogsCount++
 
+                val sender = sbn.notification.extras.getString(Notification.EXTRA_TITLE, "")
+                // not counting calls
+                if (sender == "Ongoing Video Chat" || sender == "Ongoing Telegram call") {
+                    continue
+                }
+                // group summary internally is a full separate notification, we parse counters from it, but not count notification itself
                 if ((sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY) == Notification.FLAG_GROUP_SUMMARY) {
                     val subText = sbn.notification.extras.getString(Notification.EXTRA_SUMMARY_TEXT, "")
-                    //Log.d(GBService.Companion.TAG, String.format("Group summary: %s", subText))
+                    //Log.d(TAG, String.format("Group summary: %s", subText))
                     val groupSummary = reformatSummary(subText)
-                    if (groupSummary.isNotEmpty()) {
-                        summary.messengerInfo[pkg]?.unreadChatsCount = groupSummary[1]
+                    if (groupSummary != null) {
                         summary.messengerInfo[pkg]?.unreadMessagesCount = groupSummary[0]
+                        summary.messengerInfo[pkg]?.unreadChatsCount = groupSummary[1]
                     }
+                    continue
                 }
                 // or use sub text
                 // val subText = sbn.notification.extras.getString(Notification.EXTRA_SUB_TEXT, "")
+
+                if(summary.messengerInfo[pkg]?.lastSenderName == "") {
+                    summary.messengerInfo[pkg]?.lastSenderName = sender
+                }
+                summary.messengerInfo[pkg]?.unreadDialogsCount++
+
                 continue
             }
             //Log.d(TAG, String.format("SKIP: %s", pkg))
@@ -127,18 +134,18 @@ class NotificationListenerService : NotificationListenerService() {
         gbService.countNotifications(summary, fromUi)
     }
 
-    private fun reformatSummary(summary: String): List<Int> {
+    private fun reformatSummary(summary: String): List<Int>? {
         val l: MutableList<Int> = mutableListOf<Int>()
-        //Alex Surname * 10 new messages from 7 chats
-        val r = Regex(".*(?<messages>\\d+) new messages from (?<chats>\\d+) chats")
-        val m = r.matchEntire(summary)
+            //"Alex󠅨󠄣󠄣󠅓󠅝󠅨・18 new messages from 18 chats"
+        val r = Regex("(?<messages>\\d+) new messages from (?<chats>\\d+) chats")
+        val m = r.find(summary)
         if (m == null) {
-            return l
+            return null
         }
-        l[0] = m.groupValues[1].toInt()
-        l[1] = m.groupValues[2].toInt()
+        val mes = m.groups["messages"]?.value?.toInt() ?: 0
+        val ch = m.groups["chats"]?.value?.toInt() ?: 0
 
-        return l
+        return listOf(mes, ch)
     }
 
 }
