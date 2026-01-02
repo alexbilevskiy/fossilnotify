@@ -129,7 +129,7 @@ class GBService {
 
         // {"LOCATION_LAT":55860619,"LOCATION_LNG":37567214,"LOCATION_GMT_OFFSET":180}
 
-        Log.d(TAG, String.format("PEBBLE NOTIF: `%s`, `%s`, `%s`, `%s`", secondaryText0, secondaryText1, secondaryText2, secondaryText3))
+        Log.d(TAG, String.format("NOTIFY PEBBLE: `%s`, `%s`, `%s`, `%s`", secondaryText0, secondaryText1, secondaryText2, secondaryText3))
         val dataToSend = mapOf(
             SecondaryText0 to PebbleDictionaryItem.String(secondaryText0),
             SecondaryText1 to PebbleDictionaryItem.String(secondaryText1),
