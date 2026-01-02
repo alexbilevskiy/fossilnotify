@@ -27,8 +27,10 @@ import nodomain.freeyourgadget.fossilnotify.data.PushParams
 import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_FILTER_ACTION
 import java.util.UUID
 
-const val AppKeyTotalNotifications = 18u
-const val AppKeyTgSummary = 19u
+const val SecondaryText0 = 18u
+const val SecondaryText1 = 19u
+const val SecondaryText2 = 20u
+const val SecondaryText3 = 21u
 
 class GBService {
     companion object {
@@ -41,6 +43,8 @@ class GBService {
     private var lowerText1Prev: String = ""
     private var secondaryText0Prev: String = ""
     private var secondaryText1Prev: String = ""
+    private var secondaryText2Prev: String = ""
+    private var secondaryText3Prev: String = ""
 
     val watchfaceUUID: UUID
     private val applicationContext: Context
@@ -98,7 +102,7 @@ class GBService {
         }
     }
 
-    fun sendPebbleData(tgSummary: String, notifCount: String) {
+    fun sendPebbleData(secondaryText0: String, secondaryText1: String, secondaryText2: String, secondaryText3: String) {
         val cnt = watches.count()
         if (cnt == 0) {
             Log.d(TAG, "no connected watches")
@@ -125,10 +129,12 @@ class GBService {
 
         // {"LOCATION_LAT":55860619,"LOCATION_LNG":37567214,"LOCATION_GMT_OFFSET":180}
 
-        Log.d(TAG, "sending pebble data")
+        Log.d(TAG, String.format("PEBBLE NOTIF: `%s`, `%s`, `%s`, `%s`", secondaryText0, secondaryText1, secondaryText2, secondaryText3))
         val dataToSend = mapOf(
-            AppKeyTgSummary to PebbleDictionaryItem.String(tgSummary),
-            AppKeyTotalNotifications to PebbleDictionaryItem.String(notifCount),
+            SecondaryText0 to PebbleDictionaryItem.String(secondaryText0),
+            SecondaryText1 to PebbleDictionaryItem.String(secondaryText1),
+            SecondaryText2 to PebbleDictionaryItem.String(secondaryText2),
+            SecondaryText3 to PebbleDictionaryItem.String(secondaryText3),
         )
         serviceScope.launch {
             val sender = DefaultPebbleSender(applicationContext)
@@ -146,14 +152,18 @@ class GBService {
         }
     }
 
-    fun cachedSendPebble(fromUi: Boolean, secondaryText0: String, secondaryText1: String) {
+    fun cachedSendPebble(fromUi: Boolean, secondaryText0: String, secondaryText1: String, secondaryText2: String, secondaryText3: String) {
         var changed = false
         if (secondaryText0 != secondaryText0Prev ||
-            secondaryText1 != secondaryText1Prev
+            secondaryText1 != secondaryText1Prev ||
+            secondaryText2 != secondaryText2Prev ||
+            secondaryText3 != secondaryText3Prev
             ) {
             changed = true
             secondaryText0Prev = secondaryText0
             secondaryText1Prev = secondaryText1
+            secondaryText2Prev = secondaryText2
+            secondaryText3Prev = secondaryText3
         }
         if (fromUi) {
             Log.d(TAG, String.format("sending pebble: from UI"))
@@ -164,7 +174,7 @@ class GBService {
             return
         }
 
-        sendPebbleData(secondaryText0, secondaryText1)
+        sendPebbleData(secondaryText0, secondaryText1, secondaryText2, secondaryText3)
     }
 
     fun sendFossilWidgetData(upperText0: String, lowerText0: String, upperText1: String = "", lowerText1: String = "") {
@@ -243,6 +253,6 @@ class GBService {
             }
         }
         cachedSendFossil(fromUi, upperText0, lowerText0, upperText1, lowerText1)
-        cachedSendPebble(fromUi, upperText0, lowerText1)
+        cachedSendPebble(fromUi, upperText0, lowerText0, upperText1, lowerText1)
     }
 }
