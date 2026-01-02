@@ -232,7 +232,9 @@ class GBService {
             } else {
                 upperText0 = String.format("%d", tgSummary.unreadDialogsCount)
             }
-            lowerText0 = String.format("%dc, %dm", tgSummary.unreadChatsCount, tgSummary.unreadMessagesCount)
+            if (tgSummary.unreadChatsCount != 0 || tgSummary.unreadMessagesCount != 0) {
+                lowerText0 = String.format("%dc, %dm", tgSummary.unreadChatsCount, tgSummary.unreadMessagesCount)
+            }
         } else {
             upperText0 = ""
             lowerText0 = ""
