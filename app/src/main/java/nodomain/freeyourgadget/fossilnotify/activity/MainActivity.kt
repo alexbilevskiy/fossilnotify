@@ -31,7 +31,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private val viewModel = ViewModel()
-    private lateinit var gbService: GBService
 
     private lateinit var notificationService: NotificationService
     private lateinit var uiBroadcastReceiver: UiBroadcastReceiver
@@ -50,10 +49,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        gbService = GBService(applicationContext)
-
         notificationService = NotificationService(applicationContext)
-        uiBroadcastReceiver = UiBroadcastReceiver(viewModel, gbService)
+        uiBroadcastReceiver = UiBroadcastReceiver(viewModel)
         registerReceiver(uiBroadcastReceiver, IntentFilter(INTENT_FILTER_ACTION))
 
         askListenNotificationsPermission()
