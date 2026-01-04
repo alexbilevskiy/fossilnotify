@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,6 +28,10 @@ fun MainScreen(
     text: String,
     onClickCreateNotify: () -> Unit,
     onClickCount: () -> Unit,
+    pebbleEnabled: Boolean,
+    onPebbleToggle: (Boolean) -> Unit,
+    fossilEnabled: Boolean,
+    onFossilToggle: (Boolean) -> Unit,
 ) {
     androidx.compose.material3.Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -64,6 +69,24 @@ fun MainScreen(
                         modifier = Modifier.padding(vertical = 8.dp),
                         text = "Actions",
                         style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        text = "Pebble enabled",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Checkbox(
+                        checked = pebbleEnabled,
+                        onCheckedChange = onPebbleToggle
+                    )
+                    Text(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        text = "Fossil enabled",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Checkbox(
+                        checked = fossilEnabled,
+                        onCheckedChange = onFossilToggle
                     )
                     Button(
                         onClick = onClickCreateNotify

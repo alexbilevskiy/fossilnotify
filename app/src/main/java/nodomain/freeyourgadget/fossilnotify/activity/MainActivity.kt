@@ -2,6 +2,7 @@ package nodomain.freeyourgadget.fossilnotify.activity
 
 import android.Manifest
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
@@ -13,6 +14,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_FILTER_ACTION
 import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService
@@ -24,11 +29,6 @@ import nodomain.freeyourgadget.fossilnotify.ui.view_model.ViewModel
 
 
 class MainActivity : ComponentActivity() {
-
-    companion object {
-        const val TAG = "MainActivity"
-    }
-
     private val viewModel = ViewModel()
 
     private lateinit var notificationSender: NotificationSender
@@ -55,7 +55,11 @@ class MainActivity : ComponentActivity() {
         askListenNotificationsPermission()
         askPostNotificationsPermission()
 
+        val prefs = applicationContext.getSharedPreferences("gb", Context.MODE_PRIVATE)
+
         setContent {
+            var pebbleEnabled by remember { mutableStateOf(prefs.getBoolean("pebble_enabled", true)) }
+            var fossilEnabled by remember { mutableStateOf(prefs.getBoolean("fossil_enabled", true)) }
             NotificationListenerExampleTheme {
                 MainScreen(
                     text = viewModel.text,
@@ -66,7 +70,29 @@ class MainActivity : ComponentActivity() {
                         val intent = Intent(INTENT_FILTER_ACTION)
                         intent.putExtra("command", "count")
                         applicationContext.sendBroadcast(intent)
-                    }
+                    },
+                    pebbleEnabled = pebbleEnabled,
+                    onPebbleToggle = { enabled ->
+                        val e = prefs.edit()
+                        e.putBoolean("pebble_enabled", enabled)
+                        e.commit()
+                        pebbleEnabled = enabled
+                        val intent = Intent(INTENT_FILTER_ACTION)
+                        intent.putExtra("command", "toggle_pebble")
+                        intent.putExtra("enabled", enabled)
+                        applicationContext.sendBroadcast(intent)
+                    },
+                    fossilEnabled = fossilEnabled,
+                    onFossilToggle = { enabled ->
+                        val e = prefs.edit()
+                        e.putBoolean("fossil_enabled", enabled)
+                        e.commit()
+                        fossilEnabled = enabled
+                        val intent = Intent(INTENT_FILTER_ACTION)
+                        intent.putExtra("command", "toggle_fossil")
+                        intent.putExtra("enabled", enabled)
+                        applicationContext.sendBroadcast(intent)
+                    },
                 )
             }
         }

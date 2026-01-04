@@ -1,8 +1,8 @@
 package nodomain.freeyourgadget.fossilnotify.service.gb
 
-import android.app.Notification
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.util.Log
 import com.google.gson.Gson
 import io.rebble.pebblekit2.client.DefaultPebbleInfoRetriever
@@ -13,8 +13,8 @@ import io.rebble.pebblekit2.model.ConnectedWatch
 import io.rebble.pebblekit2.model.Watchapp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import nodomain.freeyourgadget.fossilnotify.data.GBPush
@@ -50,6 +50,9 @@ class GBService {
     private val applicationContext: Context
     private val infoRetriever: DefaultPebbleInfoRetriever
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private var pebbleJob: Job? = null
+    private var fossilEnabled: Boolean = false
+    private val prefs: SharedPreferences
 
     private val watches: MutableMap<WatchIdentifier, String> = mutableMapOf()
     private val apps: MutableMap<WatchIdentifier, UUID> = mutableMapOf()
@@ -60,13 +63,46 @@ class GBService {
 
         this.infoRetriever = DefaultPebbleInfoRetriever(applicationContext)
 
-        serviceScope.launch {
+        this.prefs = applicationContext.getSharedPreferences("gb", Context.MODE_PRIVATE)
+
+        if (prefs.getBoolean("pebble_enabled", false)) {
+            initPebble()
+        }
+        if (prefs.getBoolean("fossil_enabled", false)) {
+            initFossil()
+        }
+    }
+
+    fun initPebble() {
+        if (pebbleJob != null) {
+            Log.d(TAG, "not initing pebble again")
+            return
+        }
+        Log.d(TAG, "init pebble")
+        pebbleJob = serviceScope.launch {
             updateWatches()
         }
     }
 
-    fun close() {
-        serviceScope.cancel()
+    fun closePebble() {
+        Log.d(TAG, "close pebble")
+        pebbleJob?.cancel()
+        pebbleJob = null
+        watches.clear()
+        apps.clear()
+    }
+
+    fun initFossil() {
+        if (fossilEnabled) {
+            Log.d(TAG, "not initing fossil again")
+        }
+        Log.d(TAG, "init fossil")
+        fossilEnabled = true
+    }
+
+    fun closeFossil() {
+        Log.d(TAG, "close fossil")
+        fossilEnabled = false
     }
 
     suspend fun updateWatches() {
@@ -153,6 +189,10 @@ class GBService {
     }
 
     fun cachedSendPebble(fromUi: Boolean, secondaryText0: String, secondaryText1: String, secondaryText2: String, secondaryText3: String) {
+        if (pebbleJob == null) {
+            Log.d(TAG, "pebble not active")
+            return
+        }
         var changed = false
         if (secondaryText0 != secondaryText0Prev ||
             secondaryText1 != secondaryText1Prev ||
@@ -186,6 +226,10 @@ class GBService {
     }
 
     fun cachedSendFossil(fromUi: Boolean, upperText0: String, lowerText0: String, upperText1: String = "", lowerText1: String = "") {
+        if (!fossilEnabled) {
+            Log.d(TAG, "fossil not active")
+            return
+        }
         var changed = false
         if (upperText0 != upperText0Prev ||
             lowerText0 != lowerText0Prev ||
@@ -200,7 +244,7 @@ class GBService {
         }
         if (fromUi) {
             val iTg = Intent(INTENT_FILTER_ACTION)
-            iTg.putExtra("command", "count_result")
+            iTg.putExtra("action", "count_result")
             iTg.putExtra("upper_text0", upperText0)
             iTg.putExtra("lower_text0", lowerText0)
             iTg.putExtra("upper_text1", upperText1)
@@ -256,5 +300,10 @@ class GBService {
         }
         cachedSendFossil(fromUi, upperText0, lowerText0, upperText1, lowerText1)
         cachedSendPebble(fromUi, upperText0, lowerText0, upperText1, lowerText1)
+    }
+
+    fun close() {
+        closePebble()
+        closeFossil()
     }
 }

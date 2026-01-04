@@ -10,12 +10,14 @@ class UiBroadcastReceiver(
 ): BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        val upperText0 = intent?.getStringExtra("upper_text0")
-        val lowerText0 = intent?.getStringExtra("lower_text0")
-        val upperText1 = intent?.getStringExtra("upper_text1")
-        val lowerText1 = intent?.getStringExtra("lower_text1")
+        if (intent?.getStringExtra("action") == "count_result") {
+            val upperText0 = intent.getStringExtra("upper_text0")
+            val lowerText0 = intent.getStringExtra("lower_text0")
+            val upperText1 = intent.getStringExtra("upper_text1")
+            val lowerText1 = intent.getStringExtra("lower_text1")
 
-        viewModel.updateText(String.format("NOTIF: `%s`, `%s`, `%s`, `%s`", upperText0, lowerText0, upperText1, lowerText1))
+            viewModel.updateText(String.format("NOTIF: `%s`, `%s`, `%s`, `%s`", upperText0, lowerText0, upperText1, lowerText1))
+        }
     }
 
 }

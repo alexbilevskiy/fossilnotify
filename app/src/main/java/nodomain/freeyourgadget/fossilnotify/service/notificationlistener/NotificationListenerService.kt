@@ -14,8 +14,6 @@ import nodomain.freeyourgadget.fossilnotify.data.MessengerInfo
 import nodomain.freeyourgadget.fossilnotify.data.NotificationSummary
 import nodomain.freeyourgadget.fossilnotify.data.TotalInfo
 import nodomain.freeyourgadget.fossilnotify.service.gb.GBService
-import kotlin.and
-import kotlin.collections.get
 
 class NotificationListenerService : NotificationListenerService() {
 
@@ -66,6 +64,20 @@ class NotificationListenerService : NotificationListenerService() {
             intent?.let {
                 if (it.getStringExtra("command") == "count") {
                     processNotificationsList(this@NotificationListenerService.activeNotifications, true)
+                }
+                if (it.getStringExtra("command") == "toggle_pebble") {
+                    if (it.getBooleanExtra("enabled", false)) {
+                        this@NotificationListenerService.gbService.initPebble()
+                    } else {
+                        this@NotificationListenerService.gbService.closePebble()
+                    }
+                }
+                if (it.getStringExtra("command") == "toggle_fossil") {
+                    if (it.getBooleanExtra("enabled", false)) {
+                        this@NotificationListenerService.gbService.initFossil()
+                    } else {
+                        this@NotificationListenerService.gbService.closeFossil()
+                    }
                 }
             }
         }
