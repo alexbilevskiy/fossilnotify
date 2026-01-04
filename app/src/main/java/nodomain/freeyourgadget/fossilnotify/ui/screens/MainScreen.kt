@@ -1,7 +1,9 @@
 package nodomain.freeyourgadget.fossilnotify.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -73,26 +75,44 @@ fun MainScreen(
                     Text(
                         modifier = Modifier.padding(vertical = 8.dp),
                         text = "Actions",
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.headlineSmall
                     )
-                    Text(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        text = "Pebble enabled",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Checkbox(
-                        checked = pebbleEnabled,
-                        onCheckedChange = onPebbleToggle
-                    )
-                    Text(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        text = "Fossil enabled",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Checkbox(
-                        checked = fossilEnabled,
-                        onCheckedChange = onFossilToggle
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onPebbleToggle(!pebbleEnabled) },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            text = "Pebble enabled",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Checkbox(
+                            checked = pebbleEnabled,
+                            onCheckedChange = onPebbleToggle
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onFossilToggle(!fossilEnabled) },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            text = "Fossil enabled",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Checkbox(
+                            checked = fossilEnabled,
+                            onCheckedChange = onFossilToggle
+                        )
+
+                    }
                     Button(
                         onClick = onClickCreateNotify
                     ) {
@@ -135,7 +155,7 @@ fun MainScreen(
                     Text(
                         modifier = Modifier.padding(vertical = 8.dp),
                         text = "Preview",
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.headlineSmall
                     )
                     Text(
                         text = text,
