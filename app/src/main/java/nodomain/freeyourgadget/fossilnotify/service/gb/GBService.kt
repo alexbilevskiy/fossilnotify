@@ -213,7 +213,13 @@ class GBService {
             Log.d(TAG, String.format("not sending pebble: nothing changed"))
             return
         }
-
+        val iTg = Intent(INTENT_FILTER_ACTION)
+        iTg.putExtra("action", "pebble_result")
+        iTg.putExtra("secondary_text0", secondaryText0)
+        iTg.putExtra("secondary_text1", secondaryText1)
+        iTg.putExtra("secondary_text2", secondaryText2)
+        iTg.putExtra("secondary_text3", secondaryText3)
+        applicationContext.sendBroadcast(iTg)
         sendPebbleData(secondaryText0, secondaryText1, secondaryText2, secondaryText3)
     }
 
@@ -243,15 +249,6 @@ class GBService {
             lowerText1Prev = lowerText1
         }
         if (fromUi) {
-            val iTg = Intent(INTENT_FILTER_ACTION)
-            iTg.putExtra("action", "count_result")
-            iTg.putExtra("upper_text0", upperText0)
-            iTg.putExtra("lower_text0", lowerText0)
-            iTg.putExtra("upper_text1", upperText1)
-            iTg.putExtra("lower_text1", lowerText1)
-            applicationContext.sendBroadcast(iTg)
-        }
-        if (fromUi) {
             Log.d(TAG, String.format("sending: from UI"))
         } else if (changed) {
             Log.d(TAG, String.format("sending: has changes"))
@@ -259,6 +256,13 @@ class GBService {
             Log.d(TAG, String.format("not sending: nothing changed"))
             return
         }
+        val iTg = Intent(INTENT_FILTER_ACTION)
+        iTg.putExtra("action", "fossil_result")
+        iTg.putExtra("upper_text0", upperText0)
+        iTg.putExtra("lower_text0", lowerText0)
+        iTg.putExtra("upper_text1", upperText1)
+        iTg.putExtra("lower_text1", lowerText1)
+        applicationContext.sendBroadcast(iTg)
         sendFossilWidgetData(upperText0, lowerText0, upperText1, lowerText1)
     }
 

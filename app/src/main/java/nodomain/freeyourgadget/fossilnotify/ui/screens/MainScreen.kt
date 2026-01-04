@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,10 +30,11 @@ fun MainScreen(
     text: String,
     onClickCreateNotify: () -> Unit,
     onClickCount: () -> Unit,
+    onClickClearText: () -> Unit,
     pebbleEnabled: Boolean,
     onPebbleToggle: (Boolean) -> Unit,
     fossilEnabled: Boolean,
-    onFossilToggle: (Boolean) -> Unit,
+    onFossilToggle: (Boolean) -> Unit
 ) {
     androidx.compose.material3.Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -46,10 +49,12 @@ fun MainScreen(
             )
         },
     ) { innerPadding ->
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .padding(innerPadding) // Prevents content from going under status bar
-                .fillMaxSize(),
+                .fillMaxSize()
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -101,6 +106,14 @@ fun MainScreen(
                     ) {
                         Text(
                             text = "Count notifications",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                    Button(
+                        onClick = onClickClearText
+                    ) {
+                        Text(
+                            text = "Clear",
                             style = MaterialTheme.typography.labelLarge
                         )
                     }

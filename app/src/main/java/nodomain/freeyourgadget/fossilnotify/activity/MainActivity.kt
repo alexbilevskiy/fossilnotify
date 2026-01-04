@@ -68,7 +68,12 @@ class MainActivity : ComponentActivity() {
                     },
                     onClickCount = {
                         val intent = Intent(INTENT_FILTER_ACTION)
-                        intent.putExtra("command", "count")
+                        intent.putExtra("action", "count")
+                        applicationContext.sendBroadcast(intent)
+                    },
+                    onClickClearText = {
+                        val intent = Intent(INTENT_FILTER_ACTION)
+                        intent.putExtra("action", "clear")
                         applicationContext.sendBroadcast(intent)
                     },
                     pebbleEnabled = pebbleEnabled,
@@ -78,7 +83,7 @@ class MainActivity : ComponentActivity() {
                         e.commit()
                         pebbleEnabled = enabled
                         val intent = Intent(INTENT_FILTER_ACTION)
-                        intent.putExtra("command", "toggle_pebble")
+                        intent.putExtra("action", "toggle_pebble")
                         intent.putExtra("enabled", enabled)
                         applicationContext.sendBroadcast(intent)
                     },
@@ -89,7 +94,7 @@ class MainActivity : ComponentActivity() {
                         e.commit()
                         fossilEnabled = enabled
                         val intent = Intent(INTENT_FILTER_ACTION)
-                        intent.putExtra("command", "toggle_fossil")
+                        intent.putExtra("action", "toggle_fossil")
                         intent.putExtra("enabled", enabled)
                         applicationContext.sendBroadcast(intent)
                     },

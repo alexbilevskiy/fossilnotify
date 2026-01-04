@@ -62,17 +62,17 @@ class NotificationListenerService : NotificationListenerService() {
     internal inner class NLServiceReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             intent?.let {
-                if (it.getStringExtra("command") == "count") {
+                if (it.getStringExtra("action") == "count") {
                     processNotificationsList(this@NotificationListenerService.activeNotifications, true)
                 }
-                if (it.getStringExtra("command") == "toggle_pebble") {
+                if (it.getStringExtra("action") == "toggle_pebble") {
                     if (it.getBooleanExtra("enabled", false)) {
                         this@NotificationListenerService.gbService.initPebble()
                     } else {
                         this@NotificationListenerService.gbService.closePebble()
                     }
                 }
-                if (it.getStringExtra("command") == "toggle_fossil") {
+                if (it.getStringExtra("action") == "toggle_fossil") {
                     if (it.getBooleanExtra("enabled", false)) {
                         this@NotificationListenerService.gbService.initFossil()
                     } else {
