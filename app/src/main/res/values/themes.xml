@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.NotificationListenerExample" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.NotificationListenerExample" parent="android:Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 </resources>
