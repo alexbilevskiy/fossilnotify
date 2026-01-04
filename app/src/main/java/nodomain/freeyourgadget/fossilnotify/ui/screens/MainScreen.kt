@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,6 +30,11 @@ fun MainScreen(
     text: String,
     onClickCreateNotify: () -> Unit,
     onClickCount: () -> Unit,
+    onClickClearText: () -> Unit,
+    pebbleEnabled: Boolean,
+    onPebbleToggle: (Boolean) -> Unit,
+    fossilEnabled: Boolean,
+    onFossilToggle: (Boolean) -> Unit
 ) {
     androidx.compose.material3.Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -41,10 +49,12 @@ fun MainScreen(
             )
         },
     ) { innerPadding ->
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .padding(innerPadding) // Prevents content from going under status bar
-                .fillMaxSize(),
+                .fillMaxSize()
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -65,6 +75,24 @@ fun MainScreen(
                         text = "Actions",
                         style = MaterialTheme.typography.bodyLarge
                     )
+                    Text(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        text = "Pebble enabled",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Checkbox(
+                        checked = pebbleEnabled,
+                        onCheckedChange = onPebbleToggle
+                    )
+                    Text(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        text = "Fossil enabled",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Checkbox(
+                        checked = fossilEnabled,
+                        onCheckedChange = onFossilToggle
+                    )
                     Button(
                         onClick = onClickCreateNotify
                     ) {
@@ -78,6 +106,14 @@ fun MainScreen(
                     ) {
                         Text(
                             text = "Count notifications",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                    Button(
+                        onClick = onClickClearText
+                    ) {
+                        Text(
+                            text = "Clear",
                             style = MaterialTheme.typography.labelLarge
                         )
                     }

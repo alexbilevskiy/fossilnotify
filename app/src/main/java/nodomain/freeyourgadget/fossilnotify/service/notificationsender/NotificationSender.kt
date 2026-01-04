@@ -9,7 +9,7 @@ import nodomain.freeyourgadget.fossilnotify.R
 import nodomain.freeyourgadget.fossilnotify.activity.MainActivity
 import kotlin.random.Random
 
-class NotificationService(
+class NotificationSender(
     private val context: Context
 ) : NotificationServiceInterface {
 

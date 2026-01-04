@@ -2,6 +2,7 @@ package nodomain.freeyourgadget.fossilnotify.activity
 
 import android.Manifest
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
@@ -13,11 +14,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_FILTER_ACTION
-import nodomain.freeyourgadget.fossilnotify.service.gb.GBService
 import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService
-import nodomain.freeyourgadget.fossilnotify.service.notificationsender.NotificationService
+import nodomain.freeyourgadget.fossilnotify.service.notificationsender.NotificationSender
 import nodomain.freeyourgadget.fossilnotify.service.ui.UiBroadcastReceiver
 import nodomain.freeyourgadget.fossilnotify.ui.screens.MainScreen
 import nodomain.freeyourgadget.fossilnotify.ui.theme.NotificationListenerExampleTheme
@@ -25,14 +29,9 @@ import nodomain.freeyourgadget.fossilnotify.ui.view_model.ViewModel
 
 
 class MainActivity : ComponentActivity() {
-
-    companion object {
-        const val TAG = "MainActivity"
-    }
-
     private val viewModel = ViewModel()
 
-    private lateinit var notificationService: NotificationService
+    private lateinit var notificationSender: NotificationSender
     private lateinit var uiBroadcastReceiver: UiBroadcastReceiver
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -49,25 +48,56 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        notificationService = NotificationService(applicationContext)
+        notificationSender = NotificationSender(applicationContext)
         uiBroadcastReceiver = UiBroadcastReceiver(viewModel)
         registerReceiver(uiBroadcastReceiver, IntentFilter(INTENT_FILTER_ACTION))
 
         askListenNotificationsPermission()
         askPostNotificationsPermission()
 
+        val prefs = applicationContext.getSharedPreferences("gb", Context.MODE_PRIVATE)
+
         setContent {
+            var pebbleEnabled by remember { mutableStateOf(prefs.getBoolean("pebble_enabled", true)) }
+            var fossilEnabled by remember { mutableStateOf(prefs.getBoolean("fossil_enabled", true)) }
             NotificationListenerExampleTheme {
                 MainScreen(
                     text = viewModel.text,
                     onClickCreateNotify = {
-                        notificationService.showNotification()
+                        notificationSender.showNotification()
                     },
                     onClickCount = {
                         val intent = Intent(INTENT_FILTER_ACTION)
-                        intent.putExtra("command", "count")
+                        intent.putExtra("action", "count")
                         applicationContext.sendBroadcast(intent)
-                    }
+                    },
+                    onClickClearText = {
+                        val intent = Intent(INTENT_FILTER_ACTION)
+                        intent.putExtra("action", "clear")
+                        applicationContext.sendBroadcast(intent)
+                    },
+                    pebbleEnabled = pebbleEnabled,
+                    onPebbleToggle = { enabled ->
+                        val e = prefs.edit()
+                        e.putBoolean("pebble_enabled", enabled)
+                        e.commit()
+                        pebbleEnabled = enabled
+                        val intent = Intent(INTENT_FILTER_ACTION)
+                        intent.putExtra("action", "toggle_pebble")
+                        intent.putExtra("enabled", enabled)
+                        applicationContext.sendBroadcast(intent)
+                    },
+                    fossilEnabled = fossilEnabled,
+                    onFossilToggle = { enabled ->
+                        val e = prefs.edit()
+                        e.putBoolean("fossil_enabled", enabled)
+                        e.commit()
+                        fossilEnabled = enabled
+                        val intent = Intent(INTENT_FILTER_ACTION)
+                        intent.putExtra("action", "toggle_fossil")
+                        intent.putExtra("enabled", enabled)
+                        applicationContext.sendBroadcast(intent)
+                    },
                 )
             }
         }
