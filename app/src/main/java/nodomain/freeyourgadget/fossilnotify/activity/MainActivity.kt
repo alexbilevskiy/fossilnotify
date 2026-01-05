@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -19,20 +18,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
-import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_FILTER_ACTION
+import androidx.core.content.edit
 import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService
+import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_FILTER_ACTION
 import nodomain.freeyourgadget.fossilnotify.service.notificationsender.NotificationSender
-import nodomain.freeyourgadget.fossilnotify.service.ui.UiBroadcastReceiver
 import nodomain.freeyourgadget.fossilnotify.ui.screens.MainScreen
 import nodomain.freeyourgadget.fossilnotify.ui.theme.NotificationListenerExampleTheme
 import nodomain.freeyourgadget.fossilnotify.ui.view_model.ViewModel
 
 
 class MainActivity : ComponentActivity() {
-    private val viewModel = ViewModel()
+    private lateinit var viewModel: ViewModel
 
     private lateinit var notificationSender: NotificationSender
-    private lateinit var uiBroadcastReceiver: UiBroadcastReceiver
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -47,10 +45,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-
+        viewModel = ViewModel(applicationContext)
         notificationSender = NotificationSender(applicationContext)
-        uiBroadcastReceiver = UiBroadcastReceiver(viewModel)
-        registerReceiver(uiBroadcastReceiver, IntentFilter(INTENT_FILTER_ACTION))
 
         askListenNotificationsPermission()
         askPostNotificationsPermission()
@@ -105,7 +101,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(uiBroadcastReceiver)
     }
 
     private fun askListenNotificationsPermission() {

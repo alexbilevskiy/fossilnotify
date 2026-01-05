@@ -1,7 +1,10 @@
 package nodomain.freeyourgadget.fossilnotify.service.gb
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.util.Log
 import com.google.gson.Gson
@@ -32,10 +35,11 @@ const val SecondaryText1 = 19u
 const val SecondaryText2 = 20u
 const val SecondaryText3 = 21u
 
-class GBService {
+class GBService: ContextWrapper {
     companion object {
         const val TAG = "GBService"
     }
+    private var gbServiceReceiver: GBServiceReceiver
 
     private var upperText0Prev: String = ""
     private var lowerText0Prev: String = ""
@@ -47,7 +51,6 @@ class GBService {
     private var secondaryText3Prev: String = ""
 
     val watchfaceUUID: UUID
-    private val applicationContext: Context
     private val infoRetriever: DefaultPebbleInfoRetriever
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var pebbleJob: Job? = null
@@ -57,8 +60,11 @@ class GBService {
     private val watches: MutableMap<WatchIdentifier, String> = mutableMapOf()
     private val apps: MutableMap<WatchIdentifier, UUID> = mutableMapOf()
 
-    constructor(applicationContext: Context) {
-        this.applicationContext = applicationContext
+    constructor(base: Context) : super(base) {
+        gbServiceReceiver = GBServiceReceiver()
+        registerReceiver(gbServiceReceiver, IntentFilter(INTENT_FILTER_ACTION))
+
+        //this.applicationContext = applicationContext
         this.watchfaceUUID = UUID.fromString("756405d7-3bb5-4ad8-85c8-886025076b3b")
 
         this.infoRetriever = DefaultPebbleInfoRetriever(applicationContext)
@@ -306,8 +312,30 @@ class GBService {
         cachedSendPebble(fromUi, upperText0, lowerText0, upperText1, lowerText1)
     }
 
+    internal inner class GBServiceReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            intent?.let {
+                if (it.getStringExtra("action") == "toggle_pebble") {
+                    if (it.getBooleanExtra("enabled", false)) {
+                        initPebble()
+                    } else {
+                        closePebble()
+                    }
+                }
+                if (it.getStringExtra("action") == "toggle_fossil") {
+                    if (it.getBooleanExtra("enabled", false)) {
+                        initFossil()
+                    } else {
+                        closeFossil()
+                    }
+                }
+            }
+        }
+    }
+
     fun close() {
         closePebble()
         closeFossil()
+        unregisterReceiver(gbServiceReceiver)
     }
 }

@@ -31,8 +31,7 @@ class NotificationListenerService : NotificationListenerService() {
         Log.d(TAG, "onCreate")
 
         nlServiceReceiver = NLServiceReceiver()
-        val filter = IntentFilter(INTENT_FILTER_ACTION)
-        registerReceiver(nlServiceReceiver, filter)
+        registerReceiver(nlServiceReceiver, IntentFilter(INTENT_FILTER_ACTION))
 
         this.gbService = GBService(applicationContext)
     }
@@ -64,20 +63,6 @@ class NotificationListenerService : NotificationListenerService() {
             intent?.let {
                 if (it.getStringExtra("action") == "count") {
                     processNotificationsList(this@NotificationListenerService.activeNotifications, true)
-                }
-                if (it.getStringExtra("action") == "toggle_pebble") {
-                    if (it.getBooleanExtra("enabled", false)) {
-                        this@NotificationListenerService.gbService.initPebble()
-                    } else {
-                        this@NotificationListenerService.gbService.closePebble()
-                    }
-                }
-                if (it.getStringExtra("action") == "toggle_fossil") {
-                    if (it.getBooleanExtra("enabled", false)) {
-                        this@NotificationListenerService.gbService.initFossil()
-                    } else {
-                        this@NotificationListenerService.gbService.closeFossil()
-                    }
                 }
             }
         }
