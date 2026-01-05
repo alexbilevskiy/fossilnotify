@@ -23,7 +23,7 @@ import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.Notific
 import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_FILTER_ACTION
 import nodomain.freeyourgadget.fossilnotify.service.notificationsender.NotificationSender
 import nodomain.freeyourgadget.fossilnotify.ui.screens.MainScreen
-import nodomain.freeyourgadget.fossilnotify.ui.theme.NotificationListenerExampleTheme
+import nodomain.freeyourgadget.fossilnotify.ui.theme.FossilNotifyTheme
 import nodomain.freeyourgadget.fossilnotify.ui.view_model.ViewModel
 
 
@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             var pebbleEnabled by remember { mutableStateOf(prefs.getBoolean("pebble_enabled", true)) }
             var fossilEnabled by remember { mutableStateOf(prefs.getBoolean("fossil_enabled", true)) }
-            NotificationListenerExampleTheme {
+            FossilNotifyTheme {
                 MainScreen(
                     text = viewModel.text,
                     onClickCreateNotify = {

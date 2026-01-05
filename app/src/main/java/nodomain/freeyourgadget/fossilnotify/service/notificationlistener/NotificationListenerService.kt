@@ -20,7 +20,7 @@ class NotificationListenerService : NotificationListenerService() {
     companion object {
         const val TAG = "NotificationListener"
         const val INTENT_FILTER_ACTION =
-            "nodomain.freeyourgadget.fossilnotify.NOTIFICATION_LISTENER_EXAMPLE"
+            "nodomain.freeyourgadget.fossilnotify.UI_ACTION"
     }
 
     private lateinit var nlServiceReceiver: NLServiceReceiver
