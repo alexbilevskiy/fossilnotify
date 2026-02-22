@@ -75,9 +75,9 @@ class MainActivity : ComponentActivity() {
                     },
                     pebbleEnabled = pebbleEnabled,
                     onPebbleToggle = { enabled ->
-                        val e = prefs.edit()
-                        e.putBoolean("pebble_enabled", enabled)
-                        e.commit()
+                        prefs.edit(commit = true) {
+                            putBoolean("pebble_enabled", enabled)
+                        }
                         pebbleEnabled = enabled
                         val intent = Intent(INTENT_UI_ACTION)
                         intent.putExtra("action", "toggle_pebble")
@@ -86,9 +86,9 @@ class MainActivity : ComponentActivity() {
                     },
                     fossilEnabled = fossilEnabled,
                     onFossilToggle = { enabled ->
-                        val e = prefs.edit()
-                        e.putBoolean("fossil_enabled", enabled)
-                        e.commit()
+                        prefs.edit(commit = true) {
+                            putBoolean("fossil_enabled", enabled)
+                        }
                         fossilEnabled = enabled
                         val intent = Intent(INTENT_UI_ACTION)
                         intent.putExtra("action", "toggle_fossil")
