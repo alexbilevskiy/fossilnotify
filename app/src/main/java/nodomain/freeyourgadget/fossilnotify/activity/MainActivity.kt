@@ -20,11 +20,12 @@ import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService
-import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_FILTER_ACTION
+import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_UI_ACTION
 import nodomain.freeyourgadget.fossilnotify.service.notificationsender.NotificationSender
 import nodomain.freeyourgadget.fossilnotify.ui.screens.MainScreen
 import nodomain.freeyourgadget.fossilnotify.ui.theme.FossilNotifyTheme
 import nodomain.freeyourgadget.fossilnotify.ui.view_model.ViewModel
+import nodomain.freeyourgadget.fossilnotify.ui.view_model.ViewModel.Companion.INTENT_UI_UPDATE
 
 
 class MainActivity : ComponentActivity() {
@@ -63,12 +64,12 @@ class MainActivity : ComponentActivity() {
                         notificationSender.showNotification()
                     },
                     onClickCount = {
-                        val intent = Intent(INTENT_FILTER_ACTION)
+                        val intent = Intent(INTENT_UI_ACTION)
                         intent.putExtra("action", "count")
                         applicationContext.sendBroadcast(intent)
                     },
                     onClickClearText = {
-                        val intent = Intent(INTENT_FILTER_ACTION)
+                        val intent = Intent(INTENT_UI_UPDATE)
                         intent.putExtra("action", "clear")
                         applicationContext.sendBroadcast(intent)
                     },
@@ -78,7 +79,7 @@ class MainActivity : ComponentActivity() {
                         e.putBoolean("pebble_enabled", enabled)
                         e.commit()
                         pebbleEnabled = enabled
-                        val intent = Intent(INTENT_FILTER_ACTION)
+                        val intent = Intent(INTENT_UI_ACTION)
                         intent.putExtra("action", "toggle_pebble")
                         intent.putExtra("enabled", enabled)
                         applicationContext.sendBroadcast(intent)
@@ -89,7 +90,7 @@ class MainActivity : ComponentActivity() {
                         e.putBoolean("fossil_enabled", enabled)
                         e.commit()
                         fossilEnabled = enabled
-                        val intent = Intent(INTENT_FILTER_ACTION)
+                        val intent = Intent(INTENT_UI_ACTION)
                         intent.putExtra("action", "toggle_fossil")
                         intent.putExtra("enabled", enabled)
                         applicationContext.sendBroadcast(intent)

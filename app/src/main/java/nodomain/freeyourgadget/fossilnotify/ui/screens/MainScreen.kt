@@ -154,7 +154,7 @@ fun MainScreen(
                 ) {
                     Text(
                         modifier = Modifier.padding(vertical = 8.dp),
-                        text = "Preview",
+                        text = "Events log",
                         style = MaterialTheme.typography.headlineSmall
                     )
                     Text(

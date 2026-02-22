@@ -19,7 +19,7 @@ class NotificationListenerService : NotificationListenerService() {
 
     companion object {
         const val TAG = "NotificationListener"
-        const val INTENT_FILTER_ACTION =
+        const val INTENT_UI_ACTION =
             "nodomain.freeyourgadget.fossilnotify.UI_ACTION"
     }
 
@@ -31,7 +31,7 @@ class NotificationListenerService : NotificationListenerService() {
         Log.d(TAG, "onCreate")
 
         nlServiceReceiver = NLServiceReceiver()
-        registerReceiver(nlServiceReceiver, IntentFilter(INTENT_FILTER_ACTION))
+        registerReceiver(nlServiceReceiver, IntentFilter(INTENT_UI_ACTION))
 
         this.gbService = GBService(applicationContext)
     }

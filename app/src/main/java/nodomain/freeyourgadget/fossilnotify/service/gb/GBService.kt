@@ -27,7 +27,8 @@ import nodomain.freeyourgadget.fossilnotify.data.MediaState
 import nodomain.freeyourgadget.fossilnotify.data.NotificationSummary
 import nodomain.freeyourgadget.fossilnotify.data.Push
 import nodomain.freeyourgadget.fossilnotify.data.PushParams
-import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_FILTER_ACTION
+import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_UI_ACTION
+import nodomain.freeyourgadget.fossilnotify.ui.view_model.ViewModel.Companion.INTENT_UI_UPDATE
 import java.util.UUID
 
 const val SecondaryText0 = 18u
@@ -62,7 +63,7 @@ class GBService: ContextWrapper {
 
     constructor(base: Context) : super(base) {
         gbServiceReceiver = GBServiceReceiver()
-        registerReceiver(gbServiceReceiver, IntentFilter(INTENT_FILTER_ACTION))
+        registerReceiver(gbServiceReceiver, IntentFilter(INTENT_UI_ACTION))
 
         //this.applicationContext = applicationContext
         this.watchfaceUUID = UUID.fromString("756405d7-3bb5-4ad8-85c8-886025076b3b")
@@ -219,7 +220,7 @@ class GBService: ContextWrapper {
             Log.d(TAG, String.format("not sending pebble: nothing changed"))
             return
         }
-        val iTg = Intent(INTENT_FILTER_ACTION)
+        val iTg = Intent(INTENT_UI_UPDATE)
         iTg.putExtra("action", "pebble_result")
         iTg.putExtra("secondary_text0", secondaryText0)
         iTg.putExtra("secondary_text1", secondaryText1)
@@ -262,7 +263,7 @@ class GBService: ContextWrapper {
             Log.d(TAG, String.format("not sending: nothing changed"))
             return
         }
-        val iTg = Intent(INTENT_FILTER_ACTION)
+        val iTg = Intent(INTENT_UI_UPDATE)
         iTg.putExtra("action", "fossil_result")
         iTg.putExtra("upper_text0", upperText0)
         iTg.putExtra("lower_text0", lowerText0)
