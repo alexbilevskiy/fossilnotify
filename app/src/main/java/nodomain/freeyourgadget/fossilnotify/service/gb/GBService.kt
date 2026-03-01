@@ -20,6 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import nodomain.freeyourgadget.fossilnotify.data.GBPush
 import nodomain.freeyourgadget.fossilnotify.data.GBPushConfigAction
 import nodomain.freeyourgadget.fossilnotify.data.GBPushExtra
@@ -27,6 +28,7 @@ import nodomain.freeyourgadget.fossilnotify.data.MediaState
 import nodomain.freeyourgadget.fossilnotify.data.NotificationSummary
 import nodomain.freeyourgadget.fossilnotify.data.Push
 import nodomain.freeyourgadget.fossilnotify.data.PushParams
+import nodomain.freeyourgadget.fossilnotify.service.healthconnect.StepsService
 import nodomain.freeyourgadget.fossilnotify.service.notificationlistener.NotificationListenerService.Companion.INTENT_UI_ACTION
 import nodomain.freeyourgadget.fossilnotify.ui.view_model.ViewModel.Companion.INTENT_UI_UPDATE
 import java.util.UUID
@@ -58,6 +60,8 @@ class GBService: ContextWrapper {
     private var fossilEnabled: Boolean = false
     private val prefs: SharedPreferences
 
+    private val stepsService: StepsService
+
     private val watches: MutableMap<WatchIdentifier, String> = mutableMapOf()
     private val apps: MutableMap<WatchIdentifier, UUID> = mutableMapOf()
 
@@ -71,6 +75,8 @@ class GBService: ContextWrapper {
         this.infoRetriever = DefaultPebbleInfoRetriever(applicationContext)
 
         this.prefs = applicationContext.getSharedPreferences("gb", Context.MODE_PRIVATE)
+
+        this.stepsService = StepsService(applicationContext)
 
         if (prefs.getBoolean("pebble_enabled", false)) {
             initPebble()
@@ -327,13 +333,24 @@ class GBService: ContextWrapper {
             }
         }
 
-        if (!playbackSet) {
+        if (playbackSet) {
+            cachedSendFossil(fromUi, upperText0, lowerText0, upperText1, lowerText1)
+            cachedSendPebble(fromUi, upperText0, lowerText0, upperText1, lowerText1)
+        } else {
+            upperText1 = getStepsDisplayString()
             if (notificationSummary.totalInfo.totalNotificationsCount > 0) {
                 lowerText1 = String.format("%d", notificationSummary.totalInfo.totalNotificationsCount)
             }
+            cachedSendFossil(fromUi, upperText0, lowerText0, upperText1, lowerText1)
+            cachedSendPebble(fromUi, upperText0, lowerText0, upperText1, lowerText1)
         }
-        cachedSendFossil(fromUi, upperText0, lowerText0, upperText1, lowerText1)
-        cachedSendPebble(fromUi, upperText0, lowerText0, upperText1, lowerText1)
+    }
+
+    private fun getStepsDisplayString(): String {
+        return runBlocking {
+            val steps = stepsService.fetchTodaySteps()
+            if (steps > 0) "$steps" else ""
+        }
     }
 
     internal inner class GBServiceReceiver : BroadcastReceiver() {

@@ -1,12 +1,10 @@
 # FossilNotify
 Send audio artist/track and telegram notifications summary to watch's "custom text" widgets.
 
-> This project was created by extending an example of https://github.com/roma321m/NotificationListenerExample.
-
-> This project does not work without [Gadgetbridge](https://codeberg.org/Freeyourgadget/Gadgetbridge/wiki/Fossil-Hybrid-HR#custom-widgets-firmware-dn1-0-2-20r-and-newer)
+> This project does not work without [Gadgetbridge](https://codeberg.org/Freeyourgadget/Gadgetbridge/wiki/Fossil-Hybrid-HR#custom-widgets-firmware-dn1-0-2-20r-and-newer) for Fossil/Skagen and [Pebble](https://play.google.com/store/apps/details?id=coredevices.coreapp) for Pebble
 
 ## Functions
-All functions are based on currently displaing notifications (media session is also a notification)
+Most functions are based on currently displaing notifications (media session is also a notification)
 
 ### Telegram (org.telegram.messenger.web)
 Prints last mesage sender name and number of unread messages from it in the `custom widget 1` 1st line.  
@@ -17,8 +15,11 @@ Prints currently playing track artist/title in the `custom widget 2`. Does not s
 Supposedly works for any music player.  
 Explicitly ignores tiktok.
 
-### Total
-If there is no music playing, prints total number of notifications instead of music in the `custom widget 2` 1st line.
+### Total notifications
+If there is no music playing, prints total number of apps with pending notifications instead of music in the `custom widget 2` 1st line.
+
+### Steps (new!)
+If there is no music playing, prints today's steps count retrieved from health connect app.
 
 ### Preview
 
@@ -46,4 +47,6 @@ Also requires watchface modification, such as https://github.com/alexbilevskiy/h
 </details>
 
 
+## Thanks
+This project was created by extending an example of https://github.com/roma321m/NotificationListenerExample.
 

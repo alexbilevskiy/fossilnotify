@@ -33,6 +33,7 @@ fun MainScreen(
     pebbleStatus: String,
     onClickCreateNotify: () -> Unit,
     onClickCount: () -> Unit,
+    onClickRequestHealthPermission: () -> Unit,
     onClickClearText: () -> Unit,
     pebbleEnabled: Boolean,
     onPebbleToggle: (Boolean) -> Unit,
@@ -140,6 +141,14 @@ fun MainScreen(
                         )
                     }
                     Button(
+                        onClick = onClickRequestHealthPermission
+                    ) {
+                        Text(
+                            text = "Request steps permission",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                    Button(
                         onClick = onClickClearText
                     ) {
                         Text(
@@ -147,7 +156,6 @@ fun MainScreen(
                             style = MaterialTheme.typography.labelLarge
                         )
                     }
-
                 }
             }
             Card(

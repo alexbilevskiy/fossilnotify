@@ -10,6 +10,12 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.PermissionController
+import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.records.StepsRecord
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -43,6 +49,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val healthPermissionLauncher = registerForActivityResult(
+        PermissionController.createRequestPermissionResultContract()
+    ) { grantedPermissions ->
+        if (grantedPermissions.contains(HealthPermission.getReadPermission(StepsRecord::class))) {
+            Toast.makeText(applicationContext, "Health Connect allowed", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(applicationContext, "Health Connect denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -68,6 +84,9 @@ class MainActivity : ComponentActivity() {
                         val intent = Intent(INTENT_UI_ACTION)
                         intent.putExtra("action", "count")
                         applicationContext.sendBroadcast(intent)
+                    },
+                    onClickRequestHealthPermission = {
+                        askHealthConnectPermission()
                     },
                     onClickClearText = {
                         val intent = Intent(INTENT_UI_UPDATE)
@@ -134,6 +153,23 @@ class MainActivity : ComponentActivity() {
                 // Directly ask for the permission
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
+        }
+    }
+
+    private fun askHealthConnectPermission() {
+        // maybe check HealthConnectClient.getSdkStatus(this) first
+        try {
+            val healthConnectClient = HealthConnectClient.getOrCreate(applicationContext)
+            val stepPermission = HealthPermission.getReadPermission(StepsRecord::class)
+
+            lifecycleScope.launch {
+                val grantedPermissions = healthConnectClient.permissionController.getGrantedPermissions()
+                if (!grantedPermissions.contains(stepPermission)) {
+                    healthPermissionLauncher.launch(setOf(stepPermission))
+                }
+            }
+        } catch (e: Exception) {
+            Toast.makeText(applicationContext, "Health Connect not available", Toast.LENGTH_SHORT).show()
         }
     }
 }
