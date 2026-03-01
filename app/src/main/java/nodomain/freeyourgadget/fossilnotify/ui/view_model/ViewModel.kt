@@ -19,6 +19,7 @@ class ViewModel : ContextWrapper {
             "nodomain.freeyourgadget.fossilnotify.UI_UPDATE"
     }
     var text by mutableStateOf(EMPTY_TEXT)
+    var pebbleStatus by mutableStateOf(EMPTY_TEXT)
     private var nlServiceReceiver: ViewModelReceiver
 
     constructor(base: Context) : super(base) {
@@ -47,6 +48,9 @@ class ViewModel : ContextWrapper {
                 val secondaryText3 = intent.getStringExtra("secondary_text3")
 
                 newtext = String.format("PEBBLE NOTIF: `%s`, `%s`, `%s`, `%s`", secondaryText0, secondaryText1, secondaryText2, secondaryText3)
+            } else if (intent?.getStringExtra("action") == "pebble_status") {
+                pebbleStatus = intent.getStringExtra("status").toString()
+                return
             } else {
                 Log.d(TAG, "unknown intent for ui: $intent")
                 return

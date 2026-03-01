@@ -85,6 +85,10 @@ class GBService: ContextWrapper {
             Log.d(TAG, "not initing pebble again")
             return
         }
+        val iTg = Intent(INTENT_UI_UPDATE)
+        iTg.putExtra("action", "pebble_status")
+        iTg.putExtra("status", "No connected watches")
+        applicationContext.sendBroadcast(iTg)
         Log.d(TAG, "init pebble")
         pebbleJob = serviceScope.launch {
             updateWatches()
@@ -97,6 +101,7 @@ class GBService: ContextWrapper {
         pebbleJob = null
         watches.clear()
         apps.clear()
+        updatePebbleStatus()
     }
 
     fun initFossil() {
@@ -121,10 +126,12 @@ class GBService: ContextWrapper {
                 if (it.count() == 0) {
                     Log.d(TAG, "No watches in update")
                     watches.clear()
+                    updatePebbleStatus()
                 } else {
                     for (w in it) {
                         Log.d(TAG, "Added watch: ${w.id} / ${w.name}")
                         watches[w.id] = w.name
+                        updatePebbleStatus()
                         updateWatchApps(w.id)
                     }
                 }
@@ -143,6 +150,22 @@ class GBService: ContextWrapper {
                 apps[watchId] = it.id
             }
         }
+    }
+
+    fun updatePebbleStatus() {
+        var status = ""
+        if (pebbleJob == null || pebbleJob!!.isCancelled) {
+            status = ""
+        } else if (watches.isEmpty()) {
+            status = "No connected watches"
+        } else {
+            status = "Connected watch: " + watches.entries.first().value
+        }
+
+        val iTg = Intent(INTENT_UI_UPDATE)
+        iTg.putExtra("action", "pebble_status")
+        iTg.putExtra("status", status)
+        applicationContext.sendBroadcast(iTg)
     }
 
     fun sendPebbleData(secondaryText0: String, secondaryText1: String, secondaryText2: String, secondaryText3: String) {
@@ -329,6 +352,9 @@ class GBService: ContextWrapper {
                     } else {
                         closeFossil()
                     }
+                }
+                if (it.getStringExtra("action") == "update_pebble_status") {
+                    updatePebbleStatus()
                 }
             }
         }

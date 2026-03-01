@@ -30,6 +30,7 @@ import nodomain.freeyourgadget.fossilnotify.R
 @Composable
 fun MainScreen(
     text: String,
+    pebbleStatus: String,
     onClickCreateNotify: () -> Unit,
     onClickCount: () -> Unit,
     onClickClearText: () -> Unit,
@@ -93,6 +94,15 @@ fun MainScreen(
                             checked = pebbleEnabled,
                             onCheckedChange = onPebbleToggle
                         )
+                    }
+                    Row() {
+                        if(pebbleEnabled) {
+                            Text(
+                                text = pebbleStatus,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+
                     }
 
                     Row(

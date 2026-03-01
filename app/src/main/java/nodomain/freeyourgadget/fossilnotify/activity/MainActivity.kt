@@ -60,6 +60,7 @@ class MainActivity : ComponentActivity() {
             FossilNotifyTheme {
                 MainScreen(
                     text = viewModel.text,
+                    pebbleStatus = viewModel.pebbleStatus,
                     onClickCreateNotify = {
                         notificationSender.showNotification()
                     },
@@ -98,6 +99,9 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+        val intent = Intent(INTENT_UI_ACTION)
+        intent.putExtra("action", "update_pebble_status")
+        applicationContext.sendBroadcast(intent)
     }
 
     override fun onDestroy() {
