@@ -79,7 +79,11 @@ class NotificationListenerService : NotificationListenerService() {
         val summary = NotificationSummary(mutableMapOf(), mutableMapOf(), TotalInfo(0))
         for (sbn in notificationsList) {
             val pkg = sbn.packageName
-            if (sbn.notification.channelId == "playback") {
+            if (pkg == "com.aistra.hail") {
+                // ignore some persistent apps
+                continue
+            }
+            if (sbn.notification.category == Notification.CATEGORY_TRANSPORT) {
                 if (pkg == "com.ss.android.ugc.trill" || pkg == "com.zhiliaoapp.musically") {
                     // tiktok spams in media session
                     continue
