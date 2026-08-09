@@ -38,8 +38,14 @@ class NotificationListenerService : NotificationListenerService() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(nlServiceReceiver)
-        this.gbService.close()
+        try {
+            unregisterReceiver(nlServiceReceiver)
+        } catch (e: IllegalArgumentException) {
+            Log.d(TAG, "receiver already unregistered")
+        }
+        if (::gbService.isInitialized) {
+            this.gbService.close()
+        }
         Log.d(TAG, "onDestroy")
     }
 

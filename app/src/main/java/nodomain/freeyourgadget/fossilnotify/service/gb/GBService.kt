@@ -64,6 +64,7 @@ class GBService: ContextWrapper {
 
     private val watches: MutableMap<WatchIdentifier, String> = mutableMapOf()
     private val apps: MutableMap<WatchIdentifier, UUID> = mutableMapOf()
+    private val watchAppJobs: MutableMap<WatchIdentifier, Job> = mutableMapOf()
 
     constructor(base: Context) : super(base) {
         gbServiceReceiver = GBServiceReceiver()
@@ -105,6 +106,10 @@ class GBService: ContextWrapper {
         Log.d(TAG, "close pebble")
         pebbleJob?.cancel()
         pebbleJob = null
+        for (job in watchAppJobs.values) {
+            job.cancel()
+        }
+        watchAppJobs.clear()
         watches.clear()
         apps.clear()
         updatePebbleStatus()
@@ -113,14 +118,17 @@ class GBService: ContextWrapper {
     fun initFossil() {
         if (fossilEnabled) {
             Log.d(TAG, "not initing fossil again")
+            return
         }
         Log.d(TAG, "init fossil")
         fossilEnabled = true
+        prefs.edit().putBoolean("fossil_enabled", true).apply()
     }
 
     fun closeFossil() {
         Log.d(TAG, "close fossil")
         fossilEnabled = false
+        prefs.edit().putBoolean("fossil_enabled", false).apply()
     }
 
     suspend fun updateWatches() {
@@ -129,17 +137,31 @@ class GBService: ContextWrapper {
             .flowOn(Dispatchers.Default)
             .collect { it: List<ConnectedWatch> ->
                 Log.d(TAG, "Connected watches update: $it")
-                if (it.count() == 0) {
+                val currentIds = it.map { w -> w.id }.toSet()
+
+                for (id in watches.keys.toList()) {
+                    if (id !in currentIds) {
+                        watches.remove(id)
+                        apps.remove(id)
+                        watchAppJobs.remove(id)?.cancel()
+                        Log.d(TAG, "Removed disconnected watch: $id")
+                    }
+                }
+
+                if (it.isEmpty()) {
                     Log.d(TAG, "No watches in update")
-                    watches.clear()
                     updatePebbleStatus()
                 } else {
                     for (w in it) {
                         Log.d(TAG, "Added watch: ${w.id} / ${w.name}")
                         watches[w.id] = w.name
-                        updatePebbleStatus()
-                        updateWatchApps(w.id)
+                        if (w.id !in watchAppJobs) {
+                            watchAppJobs[w.id] = serviceScope.launch {
+                                updateWatchApps(w.id)
+                            }
+                        }
                     }
+                    updatePebbleStatus()
                 }
             }
         Log.d(TAG, "finished getConnectedWatches flow")
@@ -377,9 +399,17 @@ class GBService: ContextWrapper {
         }
     }
 
+    private var closed = false
+
     fun close() {
+        if (closed) return
+        closed = true
         closePebble()
         closeFossil()
-        unregisterReceiver(gbServiceReceiver)
+        try {
+            unregisterReceiver(gbServiceReceiver)
+        } catch (e: IllegalArgumentException) {
+            Log.d(TAG, "receiver already unregistered")
+        }
     }
 }
