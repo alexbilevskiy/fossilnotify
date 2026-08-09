@@ -35,6 +35,8 @@ If there is no music playing, prints today's steps count retrieved from health c
 Requires beta version of new pebble [officiall app](https://play.google.com/store/apps/details?id=coredevices.coreapp) >= 1.0.7.10  
 Also requires watchface modification, such as https://github.com/alexbilevskiy/halcyon
 
+Works similar to fossil but doesn't use custom text widgets and instead interacts directly with watchface and outputs 4 lines of the same text.
+
 <details>
   <summary>no text:</summary>
   <img width="360" height="418" alt="image" src="https://github.com/user-attachments/assets/8debd0a6-688a-49a1-94d1-a135a0f45d99" />
